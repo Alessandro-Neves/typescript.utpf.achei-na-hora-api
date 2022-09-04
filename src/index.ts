@@ -9,7 +9,7 @@ app.use(cors({
 
 app.get('/', (req: Request, res: Response) => res.send('Ping success!'))
 
-app.use((req, res) => res.send("Esta rota não existe!").status(404))
+app.use((req, res) => res.status(404).send("Esta rota não existe!"))
 
 app.listen(3030, () => {
   console.log("Servidor rodando na porta 3030 !")
