@@ -1,1 +1,24 @@
 CREATE SCHEMA `lost&found` DEFAULT CHARACTER SET latin2;
+
+CREATE TABLE `lost&found`.`User` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE `lost&found`.`Post` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  `createdAt` TIMESTAMP NOT NULL DEFAULT now(),
+  content TEXT,
+  published BOOLEAN NOT NULL DEFAULT false,
+  `authorId` INTEGER UNSIGNED NOT NULL,
+  FOREIGN KEY (`authorId`) REFERENCES `lost&found`.`User`(id)
+);
+
+CREATE TABLE `lost&found`.`Profile` (
+  `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  bio TEXT,
+  `userId` INTEGER UNSIGNED NOT NULL UNIQUE,
+  FOREIGN KEY (`userId`) REFERENCES `lost&found`.`User`(id)
+);

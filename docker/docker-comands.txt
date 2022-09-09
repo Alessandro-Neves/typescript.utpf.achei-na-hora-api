@@ -28,30 +28,17 @@ else
     $ docker exec database-lost-found-container /usr/bin/mysqldump -u root --password=admin123 my_database > ./backup.sql
 
 
-[   remover container e imagens docker  ]
+[   Remover container e imagens docker  ]
 
 docker stop database-lost-found-container && 
 docker rm database-lost-found-container && 
-docker rmi database-mysql/lost-found -f
+docker rmi database-mysql/lost-found -f && 
 
+[  Rebuild e executar  ]
 
-
-
-
-
-
-
-
-
-
-
-
-
-[MYSQL 8.0]
-
-$ sudo docker build -f mysql.dockerfile -t udemy-aws-spring-kotlin/mysql-image .
-$ sudo docker run --name udemy-aws-spring-kotlin-container-8.0 -p 3306:3306 -d udemy-aws-spring-kotlin/mysql8.0-image
-$ sudo docker exec -it udemy-aws-spring-kotlin-container-8.0 bash
-
-    [EXPORT DUMP]
-    $ docker exec udemy-aws-spring-kotlin-container-8.0 /usr/bin/mysqldump -u root --password=admin123 rest_spg_db > ./backup.sql
+docker stop database-lost-found-container && 
+docker rm database-lost-found-container && 
+docker rmi database-mysql/lost-found -f && 
+docker build -f database.dockerfile -t database-mysql/lost-found . && 
+docker run --name database-lost-found-container -p 3306:3306 -d database-mysql/lost-found && 
+docker exec -it database-lost-found-container bash
