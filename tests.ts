@@ -1,24 +1,10 @@
 // npx ts-node tests.ts
+//https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/querying-the-database-typescript-postgres
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-// async function getAllUsers() {
-//   const allUsers = await prisma.user.findMany()
-//   console.log(allUsers)
-// }
-
-// getAllUsers()
-//   .then(async () => {
-//     await prisma.$disconnect()
-//   })
-//   .catch(async (e) => {
-//     console.error(e)
-//     await prisma.$disconnect()
-//     process.exit(1)
-//   })
-
-async function main() {
+async function test() {
   await prisma.user.create({
     data: {
       name: 'Alice',
@@ -41,7 +27,7 @@ async function main() {
   console.dir(allUsers, { depth: null })
 }
 
-main()
+test()
   .then(async () => {
     await prisma.$disconnect()
   })
