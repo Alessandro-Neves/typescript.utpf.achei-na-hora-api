@@ -36,5 +36,8 @@ node dist/src/index.js
   [  PRISMA  ]
 
   yarn prisma init
-  
+
+  npx prisma db pull
+
+  npx prisma generate
 */
