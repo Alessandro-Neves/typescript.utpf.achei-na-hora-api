@@ -4,8 +4,8 @@ import AuthService from '../services/auth'
 
 const loginController = Router()
 
-loginController.post('/', (req: Request, res: Response) => {
-  var [status, response] = AuthService.login(req.body)
+loginController.post('/', async (req: Request, res: Response) => {
+  var [status, response] = await AuthService.login(req.body)
   return res.status(status).json(response)
 })
 
