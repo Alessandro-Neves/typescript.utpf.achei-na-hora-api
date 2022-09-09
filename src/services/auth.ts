@@ -6,6 +6,7 @@ import { ExceptionResponse } from "../models/exception-dtos";
 
 class AuthService {
   public async login(dto: LoginRequestDTO): Promise<[number, (LoginResponseDTO | ExceptionResponse)]> {
+
     let allUsers: (User & {Post: Post[]; Profile: Profile | null;})[]
     var response: LoginResponseDTO | ExceptionResponse
 
@@ -16,18 +17,20 @@ class AuthService {
           Profile: true,
         },
       })
+
+      throw Error()
     }catch(error) {
       CError(`[ Error on AuthService::login at email: ${dto.email} ]`)
       response = {
         status: 404,
-        msg: 'Erro ao fazer login!'
+        msg: 'Erro ao fazer login: argumentos incorretos, permição negada ou usuário inexistente !'
       }
 
       return [404, response]
     }
 
     response = {
-      msg: 'Login Success',
+      msg: allUsers[0].email,
       token: '5f4dcc3b5aa765d61d8327deb882cf99'
     }
 
