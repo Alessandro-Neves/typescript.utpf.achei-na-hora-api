@@ -1,0 +1,1 @@
+CREATE SCHEMA `lost&found` DEFAULT CHARACTER SET latin2;
