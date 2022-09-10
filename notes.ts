@@ -11,6 +11,13 @@ npm install -g typescript
 tsc --init
 yarn add express ts-node
 yarn add -D nodemon @types/express typescript
+
+yarn add cors
+yarn add -D @types/cors
+
+yarn add prisma @prisma/client
+
+yarn add -D kill-ports
 */
 
 /*
@@ -22,4 +29,14 @@ yarn dev
 Para criar e rodar production:
 yarn build
 node dist/src/index.js
+*/
+
+// https://www.youtube.com/watch?v=NDWV5hHSPBk
+
+/*
+  [  PRISMA  ]
+
+  yarn prisma init
+
+  npx prisma db pull && npx prisma generate
 */

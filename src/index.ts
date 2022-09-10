@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express'
 import cors from 'cors'
 
 import routes from './controllers/routes';
+import { ConsoleHighlight } from './tools/console';
 
 const app: Express = express();
 
@@ -14,9 +15,9 @@ app.get('/', (req: Request, res: Response) => res.send('Ping success!'))
 
 app.use(routes)
 
-app.use((req, res) => res.status(404).send("Esta rota não existe!"))
+app.use((req, res) => res.status(404).send('Esta rota não existe!'))
 
-
-app.listen(3030, () => console.log("Servidor rodando na porta 3030 !"))
+const PORT = process.env.PORT || 3030
+app.listen(PORT, () => ConsoleHighlight(`[ Servidor rodando na porta ${PORT} ]`))
 
 // One Year Later

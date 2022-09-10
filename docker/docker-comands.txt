@@ -1,0 +1,44 @@
+[  Comandos para criar imagem, rodar container, executar container  ]
+
+$ sudo docker build -f database.dockerfile -t database-mysql/lost-found .
+$ sudo docker run --name database-lost-found-container -p 3306:3306 -d database-mysql/lost&found
+$ sudo docker exec -it database-lost-found-container bash
+
+
+[ Criar imagem, rodar container e executar ]
+
+docker build -f database.dockerfile -t database-mysql/lost-found . && 
+docker run --name database-lost-found-container -p 3306:3306 -d database-mysql/lost-found && 
+docker exec -it database-lost-found-container bash
+
+if(passaword)
+    $ mysql -u root -p
+    $ admin123
+else
+    $ mysql -u root
+
+
+[ Usar dump ]
+
+    $ cat dump.sql | docker exec -i database-lost-found-container /usr/bin/mysql -u root --password=admin123 'lost&found'
+
+
+[ Fazer backup ]
+
+    $ docker exec database-lost-found-container /usr/bin/mysqldump -u root --password=admin123 'lost&found' > ./backup.sql
+
+
+[   Remover container e imagens docker  ]
+
+docker stop database-lost-found-container && 
+docker rm database-lost-found-container && 
+docker rmi database-mysql/lost-found -f && 
+
+[  Rebuild e executar  ]
+
+docker stop database-lost-found-container && 
+docker rm database-lost-found-container && 
+docker rmi database-mysql/lost-found -f && 
+docker build -f database.dockerfile -t database-mysql/lost-found . && 
+docker run --name database-lost-found-container -p 3306:3306 -d database-mysql/lost-found && 
+docker exec -it database-lost-found-container bash
