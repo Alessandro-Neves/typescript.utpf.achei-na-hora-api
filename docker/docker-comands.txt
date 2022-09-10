@@ -20,12 +20,12 @@ else
 
 [ Usar dump ]
 
-    $ cat dump.sql | docker exec -i database-lost-found-container /usr/bin/mysql -u root --password=admin123 lost&found;
+    $ cat dump.sql | docker exec -i database-lost-found-container /usr/bin/mysql -u root --password=admin123 'lost&found'
 
 
 [ Fazer backup ]
 
-    $ docker exec database-lost-found-container /usr/bin/mysqldump -u root --password=admin123 my_database > ./backup.sql
+    $ docker exec database-lost-found-container /usr/bin/mysqldump -u root --password=admin123 'lost&found' > ./backup.sql
 
 
 [   Remover container e imagens docker  ]

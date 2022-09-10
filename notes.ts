@@ -17,6 +17,7 @@ yarn add -D @types/cors
 
 yarn add prisma @prisma/client
 
+yarn add -D kill-ports
 */
 
 /*
@@ -37,7 +38,5 @@ node dist/src/index.js
 
   yarn prisma init
 
-  npx prisma db pull
-
-  npx prisma generate
+  npx prisma db pull && npx prisma generate
 */

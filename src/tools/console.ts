@@ -26,11 +26,24 @@ BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 
 */
+const debug = true;
 
-export const CError = (msg: string) => {
-  console.log('\x1b[31m%s\x1b[0m', msg)
+export const ConsoleSuccess = (msg: string) => {
+  debug && console.log('\x1b[32m%s\x1b[0m', msg)
 }
 
-export const CSuccess = (msg: string) => {
-  console.log('\x1b[32m%s\x1b[0m', msg)
+export const ConsoleBlue = (msg: string) => {
+  debug && console.log('\x1b[34m%s\x1b[0m', msg)
+}
+
+export const ConsoleWarn = (msg: string) => {
+  debug && console.log('\x1b[33m%s\x1b[0m', msg)
+}
+
+export const ConsoleHighlight = (msg: string) => {
+  console.log('\x1b[35m%s\x1b[0m', msg)
+}
+
+export const ConsoleError = (msg: string) => {
+  console.log('\x1b[31m%s\x1b[0m', msg)
 }

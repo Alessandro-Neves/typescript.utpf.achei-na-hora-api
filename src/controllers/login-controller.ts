@@ -1,6 +1,6 @@
 import { Request, Response,  Router } from 'express'
 import { LoginResponseDTO } from '../models/login-dtos'
-import AuthService from '../services/auth'
+import AuthService from '../services/auth-service'
 
 const loginController = Router()
 

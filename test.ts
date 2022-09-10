@@ -2,7 +2,7 @@
 //https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/querying-the-database-typescript-postgres
 
 import { PrismaClient } from '@prisma/client'
-import { CError, CSuccess } from './src/tools/console'
+import { ConsoleError, ConsoleSuccess } from './src/tools/console'
 
 const prisma = new PrismaClient()
 
@@ -27,11 +27,11 @@ async function test() {
     },
   })
 
-  if(allUsers[0].email == 'alice@prisma.io'){
-    CSuccess('[ OK ]');
+  if(allUsers.length){
+    ConsoleSuccess('[ OK ]');
     console.table(allUsers)
     // console.dir(allUsers, { depth: null })
-  } else CError('[ Error on user::findMany ]')
+  } else ConsoleError('[ Error on user::findMany ]')
 
 }
 
