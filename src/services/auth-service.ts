@@ -2,12 +2,12 @@ import { LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos";
 import { Prisma } from '../database'
 import { User } from "@prisma/client";
 import { ConsoleBlue, ConsoleError, ConsoleSuccess, ConsoleWarn } from "../tools/console";
-import { ExceptionResponse } from "../models/exception-dtos";
+import { ExceptionResponse } from "../models/default-response-dtos";
 
 class AuthService {
   public async login(dto: LoginRequestDTO): Promise<[number, (LoginResponseDTO | ExceptionResponse)]> {
 
-    let user: User | null;
+    let user: User | null
     var response: LoginResponseDTO | ExceptionResponse
 
     function handleException(status: number, msg: string, error: boolean): [number, ExceptionResponse] {
@@ -25,10 +25,10 @@ class AuthService {
       if(!dto.email) throw new Error()
       user = await Prisma.user.findUnique({where: {email: dto.email}})
     }catch(error) {
-      return handleException(400, 'BAD_REQUEST: argumento inválido !', true)
+      return handleException(400, 'BAD_REQUEST: argumentos inválidos !', true)
     }
 
-    if(!user)
+    if(!user || user.password != dto.password)
       return handleException(404, 'NOT_FOUND: usuário não encontrado ou permição de acesso negada !', false)
 
     ConsoleBlue(`[ Success operation on AuthService::login at email: ${dto.email} ]`); 
