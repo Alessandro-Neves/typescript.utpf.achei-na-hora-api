@@ -1,6 +1,6 @@
 import { LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos";
 import { Prisma } from '../database'
-import { Post, Profile, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { ConsoleBlue, ConsoleError, ConsoleSuccess, ConsoleWarn } from "../tools/console";
 import { ExceptionResponse } from "../models/exception-dtos";
 

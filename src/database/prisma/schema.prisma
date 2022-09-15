@@ -7,29 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement()) @db.UnsignedInt
-  title     String   @db.VarChar(255)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  content   String?  @db.Text
-  published Boolean  @default(false)
-  authorId  Int      @db.UnsignedInt
-  User      User     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Post_ibfk_1")
-
-  @@index([authorId], map: "authorId")
-}
-
-model Profile {
-  id     Int     @id @default(autoincrement()) @db.UnsignedInt
-  bio    String? @db.Text
-  userId Int     @unique(map: "userId") @db.UnsignedInt
-  User   User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Profile_ibfk_1")
-}
-
 model User {
-  id      Int      @id @default(autoincrement()) @db.UnsignedInt
-  name    String?  @db.VarChar(255)
-  email   String   @unique(map: "email") @db.VarChar(255)
-  Post    Post[]
-  Profile Profile?
+  id                                Int       @id @default(autoincrement()) @db.UnsignedInt
+  email                             String    @unique(map: "email") @db.VarChar(255)
+  password                          String    @db.VarChar(255)
+  created_at                        DateTime  @default(now()) @db.Timestamp(0)
+  updated_at                        DateTime  @db.Timestamp(0)
+  Message_Message_origin_idToUser   Message[] @relation("Message_origin_idToUser")
+  Message_Message_destiny_idToUser  Message[] @relation("Message_destiny_idToUser")
+  Object_Object_owner_idToUser      Object[]  @relation("Object_owner_idToUser")
+  Object_Object_discoverer_idToUser Object[]  @relation("Object_discoverer_idToUser")
+  Person                            Person[]
+}
+
+model Message {
+  id                            Int      @id @default(autoincrement()) @db.UnsignedInt
+  message                       String   @db.MediumText
+  created_at                    DateTime @default(now()) @db.Timestamp(0)
+  origin_id                     Int      @db.UnsignedInt
+  destiny_id                    Int      @db.UnsignedInt
+  User_Message_origin_idToUser  User     @relation("Message_origin_idToUser", fields: [origin_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Message_ibfk_1")
+  User_Message_destiny_idToUser User     @relation("Message_destiny_idToUser", fields: [destiny_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Message_ibfk_2")
+
+  @@index([destiny_id], map: "destiny_id")
+  @@index([origin_id], map: "origin_id")
+}
+
+model Object {
+  id                              Int      @id @default(autoincrement()) @db.UnsignedInt
+  title                           String   @db.VarChar(255)
+  description                     String?  @db.MediumText
+  location                        String?  @db.VarChar(255)
+  type                            String?  @db.VarChar(45)
+  tag                             String?  @db.VarChar(45)
+  image                           Bytes?   @db.Blob
+  created_at                      DateTime @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime @db.Timestamp(0)
+  owner_id                        Int      @db.UnsignedInt
+  discoverer_id                   Int      @db.UnsignedInt
+  User_Object_owner_idToUser      User     @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
+  User_Object_discoverer_idToUser User     @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
+
+  @@index([discoverer_id], map: "discoverer_id")
+  @@index([owner_id], map: "owner_id")
+}
+
+model Person {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  full_name  String?  @db.VarChar(255)
+  nickname   String?  @db.VarChar(255)
+  image      Bytes?   @db.Blob
+  campus     String?  @db.VarChar(45)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @db.Timestamp(0)
+  user_id    Int      @db.UnsignedInt
+  User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
+
+  @@index([user_id], map: "user_id")
 }
