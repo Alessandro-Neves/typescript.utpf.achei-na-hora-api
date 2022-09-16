@@ -4,6 +4,15 @@ import { ConsoleBlue, ConsoleError, ConsoleSuccess, ConsoleWarn } from "../tools
 import { ExceptionResponse, SimpleResponse } from "../models/default-response-dtos";
 import { UserCreateRequestDTO } from '../models/user-dtos';
 
+class ExceptionHttpResponse {
+   status: number
+   message: string
+
+   constructor(status: number, message: string) {
+      this.message = message
+      this.status = status
+   }
+}
 
 
 class UserService {
@@ -17,6 +26,14 @@ class UserService {
       })
    }
 
+   private async findUserByEmail(email: string): Promise<User | undefined> {
+      return await Prisma.user.findFirst({
+         where: {
+            email: email
+         }
+      }) ?? undefined
+   }
+
    public async createUser(dto: UserCreateRequestDTO): Promise<[number, (SimpleResponse | ExceptionResponse)]> {
 
       let user: User | null
@@ -24,8 +41,8 @@ class UserService {
       var response: SimpleResponse | ExceptionResponse
 
       function handleException(status: number, msg: string, error: boolean): [number, ExceptionResponse] {
-         error && ConsoleError(`[ Exception on AuthService::login at email: ${dto.email} ]`)
-         !error && ConsoleWarn(`[ Fail operation on AuthService::login at email: ${dto.email} ]`);
+         error && ConsoleError(`[ Exception on UserService::createUser at email: ${dto.email} ]`)
+         !error && ConsoleWarn(`[ Fail operation on UserService::createUser at email: ${dto.email} ]`);
          response = {
             status,
             msg
@@ -35,28 +52,24 @@ class UserService {
       }
 
       try {
-         if (!dto.email || !dto.password)
-            return handleException(400, 'BAD_REQUEST: argumentos inválidos !', false)
+         if (!dto.email || !dto.password) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
 
-         var exists = !!await Prisma.user.findFirst({
-            where: {
-               email: dto.email
-            }
-         })
+         var exists = !!await this.findUserByEmail(dto.email)
 
-         if(exists)
-            return handleException(406, 'NOT_ACCEPTABLE: usuário já existe !', false)
+         if (exists) throw new ExceptionHttpResponse(406, 'NOT_ACCEPTABLE: usuário já existe !')
 
-      }catch(error){
+      } catch (error) {
+         if (error instanceof ExceptionHttpResponse)
+            return handleException(error.status, error.message, false)
          return handleException(500, 'INTERNAL_SERVER_ERROR: encontrar usuário', true)
       }
 
       try {
          user = await this.createUserDB(dto.email, dto.password)
-      }catch(error){
+      } catch (error) {
          return handleException(500, 'INTERNAL_SERVER_ERROR: criar usuário', true)
       }
-   
+
       try {
          person = await Prisma.person.create({
             data: {
@@ -68,13 +81,13 @@ class UserService {
                updated_at: new Date(),
             }
          })
-      }catch(error){
+      } catch (error) {
          return handleException(500, 'INTERNAL_SERVER_ERROR: criar pessoa', true)
       }
 
 
 
-      ConsoleBlue(`[ Success operation on AuthService::login at email: ${dto.email} ]`); 
+      ConsoleBlue(`[ Success operation on UserService::createUser at email: ${dto.email} ]`);
       return [201, { msg: `Usuário com email '${user.email}' criado com sucesso !` }]
    }
 
