@@ -11,8 +11,8 @@ create table `lost&found`.`User` (
 
 create table `lost&found`.`Person` (
   `id` integer unsigned not null auto_increment primary key,
-  `full_name` varchar(255),
-  `nickname` varchar(255),
+  `full_name` varchar(255) not null,
+  `nickname` varchar(255) not null,
   `image` blob,
   `campus` varchar(45),
   `created_at` timestamp not null default now(),

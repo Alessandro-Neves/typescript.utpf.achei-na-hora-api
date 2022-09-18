@@ -1,45 +1,29 @@
-import { LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos";
-import { Prisma } from '../database'
+import { isLoginRequestDto, LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos";
 import { User } from "@prisma/client";
-import { ConsoleBlue, ConsoleError, ConsoleSuccess, ConsoleWarn } from "../tools/console";
-import { ExceptionResponse } from "../models/default-response-dtos";
+import ExceptionHttpResponse from "../models/exception-http";
+import { userRepository } from "../database/repositories/user-repository";
 
 class AuthService {
-  public async login(dto: LoginRequestDTO): Promise<[number, (LoginResponseDTO | ExceptionResponse)]> {
+   public async login(dto: LoginRequestDTO): Promise<[number, (LoginResponseDTO | ExceptionHttpResponse)]> {
 
-    let user: User | null
-    var response: LoginResponseDTO | ExceptionResponse
+      let user: User | undefined
 
-    function handleException(status: number, msg: string, error: boolean): [number, ExceptionResponse] {
-      error && ConsoleError(`[ Exception on AuthService::login at email: ${dto.email} ]`)
-      !error && ConsoleWarn(`[ Fail operation on AuthService::login at email: ${dto.email} ]`);
-      response = {
-        status,
-        msg
+      try {
+         if (!isLoginRequestDto(dto)) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
+
+         user = await userRepository.findUserByEmail(dto.email)
+
+         if (!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
+         if (user.password != dto.password) throw new ExceptionHttpResponse(401, 'UNAUTHORIZED: permição de acesso negada !')
+
+      } catch (error) {
+         if (error instanceof ExceptionHttpResponse)
+            return [error.status, error]
+         return [500, new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: login usuário')]
       }
 
-      return [status, response]
-    }
-
-    try {
-      if(!dto.email) throw new Error()
-      user = await Prisma.user.findUnique({where: {email: dto.email}})
-    }catch(error) {
-      return handleException(400, 'BAD_REQUEST: argumentos inválidos !', true)
-    }
-
-    if(!user || user.password != dto.password)
-      return handleException(404, 'NOT_FOUND: usuário não encontrado ou permição de acesso negada !', false)
-
-    ConsoleBlue(`[ Success operation on AuthService::login at email: ${dto.email} ]`); 
-
-    response = {
-      msg: user.email,
-      token: '5f4dcc3b5aa765d61d8327deb882cf99'
-    }
-
-    return [202, response]
-  }
+      return [202, new LoginResponseDTO(user.email, '5f4dcc3b5aa765d61d8327deb882cf99')]
+   }
 }
 
 export default new AuthService();

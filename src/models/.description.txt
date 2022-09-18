@@ -1,3 +1,0 @@
-Pasta onde será armazenada os modelos (JSON / DTO) utilizados pelos controles, services e em outros lugarem da aplicação.
- 
-Obs: Este arquivo é apenas para o git fazer stage da pasta (não permite pasta vazia no commit), pode apagar este arquivo depois de criar o primeiro model/dto

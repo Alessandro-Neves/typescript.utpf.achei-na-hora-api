@@ -1,4 +1,0 @@
-Pasta onde será armazenada qualquer função  de parse, conversão ou tratamento de dados que possa ser usado em outros lugares da aplicação.
-Ex: Funções de conversão de data, tratamento de arquivo.
-
-Obs: Este arquivo é apenas para o git fazer stage da pasta (não permite pasta vazia no commit), pode apagar esta arquivo depois de criar o primeiro arquivo.

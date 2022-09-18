@@ -1,3 +1,0 @@
-Pasta onde será armazenada os services - funções que tratam os dados da requisições enviadas ao controller do endpoint, tratam o dados e convertem o dtos de request e response. 
-
-Obs: Este arquivo é apenas para o git fazer stage da pasta (não permite pasta vazia no commit), pode apagar este arquivo depois de criar o primeiro service
