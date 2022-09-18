@@ -6,8 +6,9 @@ import { userRepository } from "../database/repositories/user-repository";
 class AuthService {
 
    /**
-    * Retorna LoginResponseDTO caso o login ocorra com sucesso.
-    * Retorna ExceptionHttpResponse personalizado caso qualquer exception aconteça ou login falhe.
+    * @returns LoginResponseDTO caso o login ocorra com sucesso.
+    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça ou login falhe.
+    * @param dto objeto com as informações necessárias para realizar a autenticação e autorização do usuário.
     */
    public async login(dto: LoginRequestDTO): Promise<LoginResponseDTO | ExceptionHttpResponse> {
 

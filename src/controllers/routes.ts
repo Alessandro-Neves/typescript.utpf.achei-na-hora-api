@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
-import loginController from './login-controller'
+import authController from './auth-controller'
 import userController from './user-controller'
 
 const routes = Router()
 
-routes.use('/login', loginController)
+routes.use('/auth', authController)
 routes.use('/user', userController)
 
 export default routes
