@@ -1,6 +1,6 @@
 import { User, Person } from "@prisma/client";
 import { SimpleResponse } from "../models/simple-response";
-import { isUserCreateRequestDTO, UserCreateRequestDTO } from '../models/user-dtos';
+import { isUserCreateRequestDTO, UserCreateRequestDTO, UserResponseDto } from '../models/user-dtos';
 import ExceptionHttpResponse from '../models/exception-http';
 import { userRepository } from '../database/repositories/user-repository';
 import { personRepository } from '../database/repositories/person-repository';
@@ -29,13 +29,42 @@ class UserService {
          person = await personRepository.createPerson(user.id, dto.fullName, dto.nickName, dto.campus, null)
 
       } catch (error) {
-         if (error instanceof ExceptionHttpResponse)  return error
+         if (error instanceof ExceptionHttpResponse) return error
          return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: criar usuário')
       }
 
       return new SimpleResponse(`Usuário com email '${user.email}' criado com sucesso !`)
    }
 
+   public async findUserByEmail(email: string): Promise<UserResponseDto | ExceptionHttpResponse> {
+      let user: User | undefined
+      let person: Person | undefined
+
+      try {
+         if (!email || !email.length) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
+
+         user = await userRepository.findUserByEmail(email)
+
+         if(!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
+
+         person = await personRepository.findPersonByUserId(user.id)
+
+         if(!person) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário[pessoa] não encontrado !')
+
+      } catch (error) {
+         if (error instanceof ExceptionHttpResponse) return error
+         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: buscar usuario')
+      }
+
+      return new UserResponseDto(
+         user.email, 
+         person.full_name, 
+         person.nickname, 
+         person.campus ?? '', 
+         user.created_at, 
+         user.updated_at)
+   }
+
 }
 
-export default new UserService()
+export const userService = new UserService()

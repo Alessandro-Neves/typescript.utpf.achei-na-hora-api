@@ -1,3 +1,4 @@
+import { Person } from "@prisma/client";
 import { Prisma } from "..";
 
 class PersonRepository {
@@ -13,6 +14,14 @@ class PersonRepository {
        }
     })
   }
+
+  public async findPersonByUserId(id: number): Promise<Person | undefined> {
+    return await Prisma.person.findFirst({
+       where: {
+          user_id: id
+       }
+    }) ?? undefined
+ }
 }
 
 export const personRepository = new PersonRepository()
