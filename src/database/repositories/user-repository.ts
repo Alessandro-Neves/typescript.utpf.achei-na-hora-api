@@ -1,5 +1,6 @@
 import { Prisma } from '..'
 import { User, Person } from "@prisma/client";
+import { personRepository } from './person-repository';
 
 
 class UserRepository {
@@ -19,6 +20,20 @@ class UserRepository {
             email: email
          }
       }) ?? undefined
+   }
+
+   public async deleteUserById(id: number): Promise<Boolean> {
+      try {
+         await Prisma.user.delete({
+            where: {
+               id: id
+            }
+         })
+
+         return true
+      } catch (error) {
+         return false
+      }
    }
 }
 

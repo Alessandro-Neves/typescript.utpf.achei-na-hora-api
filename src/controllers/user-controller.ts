@@ -21,4 +21,11 @@ userController.get('/:email', async (req: Request, res: Response) => {
    else return res.status(response.status).json(response)
 })
 
+userController.delete('/:email', async (req: Request, res: Response) => {
+   var response = await userService.deleteUserByEmail(req.params.email)
+
+   if (response instanceof SimpleResponse) return res.status(200).json(response)
+   else return res.status(response.status).json(response)
+})
+
 export default userController

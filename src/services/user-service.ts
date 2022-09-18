@@ -65,6 +65,34 @@ class UserService {
          user.updated_at)
    }
 
+   public async deleteUserByEmail(email: string): Promise< SimpleResponse | ExceptionHttpResponse > {
+      var user: User | undefined
+      var person: Person | undefined
+
+      try {
+         if (!email || !email.length) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
+
+         user = await userRepository.findUserByEmail(email)
+
+         if(!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
+
+         person = await personRepository.findPersonByUserId(user.id)
+
+         if(!person) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário[pessoa] não encontrado !')
+
+         if(!personRepository.deletePersonById(person.id))
+            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar pessoa')
+
+         if(!userRepository.deleteUserById(user.id))
+            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar pessoa')
+
+         return new SimpleResponse(`Usuario com email '${email}' deletado com sucesso !`)
+      } catch (error) {
+         if (error instanceof ExceptionHttpResponse) return error
+         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: buscar usuario')
+      }
+   }
+
 }
 
 export const userService = new UserService()
