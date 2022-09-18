@@ -7,6 +7,10 @@ import { personRepository } from '../database/repositories/person-repository';
 
 class UserService {
 
+   /**
+    * Cria um usuario com os atributos fornecidos pelo dto, retornando SimpleResponse em caso de sucesso.
+    * Retorna ExceptionHttpResponse personalizado caso qualquer exception aconteça.
+    */
    public async createUser(dto: UserCreateRequestDTO): Promise<SimpleResponse | ExceptionHttpResponse> {
 
       let user: User | undefined
@@ -25,8 +29,7 @@ class UserService {
          person = await personRepository.createPerson(user.id, dto.fullName, dto.nickName, dto.campus, null)
 
       } catch (error) {
-         if (error instanceof ExceptionHttpResponse)
-            return new ExceptionHttpResponse(error.status, error.message)
+         if (error instanceof ExceptionHttpResponse)  return error
          return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: criar usuário')
       }
 

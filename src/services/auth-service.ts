@@ -4,7 +4,12 @@ import ExceptionHttpResponse from "../models/exception-http";
 import { userRepository } from "../database/repositories/user-repository";
 
 class AuthService {
-   public async login(dto: LoginRequestDTO): Promise<[number, (LoginResponseDTO | ExceptionHttpResponse)]> {
+
+   /**
+    * Retorna LoginResponseDTO caso o login ocorra com sucesso.
+    * Retorna ExceptionHttpResponse personalizado caso qualquer exception aconteça ou login falhe.
+    */
+   public async login(dto: LoginRequestDTO): Promise<LoginResponseDTO | ExceptionHttpResponse> {
 
       let user: User | undefined
 
@@ -17,12 +22,11 @@ class AuthService {
          if (user.password != dto.password) throw new ExceptionHttpResponse(401, 'UNAUTHORIZED: permição de acesso negada !')
 
       } catch (error) {
-         if (error instanceof ExceptionHttpResponse)
-            return [error.status, error]
-         return [500, new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: login usuário')]
+         if (error instanceof ExceptionHttpResponse)  return error
+         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: login usuário')
       }
 
-      return [202, new LoginResponseDTO(user.email, '5f4dcc3b5aa765d61d8327deb882cf99')]
+      return new LoginResponseDTO(user.email, '5f4dcc3b5aa765d61d8327deb882cf99')
    }
 }
 

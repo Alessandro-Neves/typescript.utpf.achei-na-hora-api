@@ -1,6 +1,3 @@
-import { empty } from "@prisma/client/runtime"
-import ExceptionHttpResponse from "./exception-http"
-
 export type UserCreateRequestDTO = {
   email: string
   password: string
