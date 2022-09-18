@@ -3,9 +3,9 @@ import ExceptionHttpResponse from '../models/exception-http'
 import { LoginResponseDTO } from '../models/login-dtos'
 import AuthService from '../services/auth-service'
 
-const loginController = Router()
+const authController = Router()
 
-loginController.post('/', async (req: Request, res: Response) => {
+authController.post('/login', async (req: Request, res: Response) => {
   var response = await AuthService.login(req.body)
 
   if(response instanceof ExceptionHttpResponse)
@@ -13,4 +13,4 @@ loginController.post('/', async (req: Request, res: Response) => {
   return res.status(202).json(response)
 })
 
-export default loginController
+export default authController

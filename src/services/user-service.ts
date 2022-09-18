@@ -8,8 +8,10 @@ import { personRepository } from '../database/repositories/person-repository';
 class UserService {
 
    /**
-    * Cria um usuario com os atributos fornecidos pelo dto, retornando SimpleResponse em caso de sucesso.
-    * Retorna ExceptionHttpResponse personalizado caso qualquer exception aconteça.
+    * Cria um usuario com os atributos fornecidos pelo dto.
+    * @returns SimpleResponse em caso de sucesso.
+    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
+    * @param dto objeto com os atributos necessários para criar um usuário (User + Person)
     */
    public async createUser(dto: UserCreateRequestDTO): Promise<SimpleResponse | ExceptionHttpResponse> {
 
@@ -36,6 +38,12 @@ class UserService {
       return new SimpleResponse(`Usuário com email '${user.email}' criado com sucesso !`)
    }
 
+   /**
+    * Busca um usuário pelo email fornecido.
+    * @returns UserResponseDto com os dados do usuário encontrado em caso de sucesso.
+    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
+    * @param email email do usuário  a ser buscado.
+    */
    public async findUserByEmail(email: string): Promise<UserResponseDto | ExceptionHttpResponse> {
       let user: User | undefined
       let person: Person | undefined
@@ -65,6 +73,12 @@ class UserService {
          user.updated_at)
    }
 
+   /**
+    * Deleta o usuário com o email especificado.
+    * @returns SimpleResponse caso o usuário exista e tenha sido deletado com sucesso.
+    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
+    * @param email email do usuário a ser deletado.
+    */
    public async deleteUserByEmail(email: string): Promise< SimpleResponse | ExceptionHttpResponse > {
       var user: User | undefined
       var person: Person | undefined
