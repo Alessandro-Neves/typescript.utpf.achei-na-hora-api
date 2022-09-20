@@ -36,13 +36,13 @@ create table `lost&found`.`Object` (
   `title` varchar(255) not null,
   `description` mediumtext,
   `location` varchar(255),
-  `type` varchar(45),
+  `type` ENUM('ACHADO', 'PERDIDO'),
   `tag` varchar(45),
   `image` blob,
   `created_at` timestamp not null default now(),
   `updated_at` timestamp not null,
-  `owner_id` integer unsigned not null,
-  `discoverer_id` integer unsigned not null,
+  `owner_id` integer unsigned,
+  `discoverer_id` integer unsigned,
   foreign key (`owner_id`) references `lost&found`.`User` (`id`),
   foreign key (`discoverer_id`) references `lost&found`.`User` (`id`)
 );
