@@ -19,6 +19,7 @@ class AuthService {
 
          user = await userRepository.findUserByEmail(dto.email)
 
+
          if (!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
          if (user.password != dto.password) throw new ExceptionHttpResponse(401, 'UNAUTHORIZED: permição de acesso negada !')
 

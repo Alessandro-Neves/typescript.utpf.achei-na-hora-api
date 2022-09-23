@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- <link rel="stylesheet" href="styles.css"> -->
+   <style>
+      .no-show {
+         display: none;
+      }
+
+      #http-success, #http-error, #http-post, #input-error {
+         margin-top: 10px;
+         font-weight: bold;
+      }
+
+      @media (min-width: 991.99px) {
+         .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 500px;
+            margin: 0 auto;
+         }
+
+         #form {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+         }
+
+         #owner-input {
+            width: 70px;
+            margin-right: 10px;
+         }
+
+         #url-input {
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+         }
+
+         #upload-file-input {
+            border: 1px solid gray;
+            width: 100%;
+         }
+
+         #send-form {
+            margin-left: 10px;
+         }
+      }
+
+      @media(max-width: 991.98px) {
+
+         .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+         }
+
+         #form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 10px 10px;
+         }
+
+         #upload-file-input, #send-form {
+            width: 100%;
+            margin-top: 10px;
+         }
+
+         #owner-input {
+            width: 98%;
+            margin-top: 10px;
+            text-align: center;
+         }
+      }
+   </style>
+   <title>Document</title>
+</head>
+
+<body>
+
+   <div class='container'>
+      <h1>Upload Imagens</h1>
+      <form id='form'>
+         <input type='number' id='owner-input' placeholder='id objeto' />
+         <input type='file' id='upload-file-input' placeholder='escolha uma imagem' multiple/>
+         <button id='send-form'>Enviar</button>
+      </form>
+      <span id='http-post' class='no-show'>Enviando ...</span>
+      <span id='http-success' class='no-show'>Enviado !</span>
+      <span id='input-error' class='no-show'>Argumentos Inválidos !</span>
+      <span id='http-error' class='no-show'>Erro ao enviar !</span>
+      
+   </div>
+
+   <script>
+      document.getElementById('send-form').addEventListener('click', handleSubmitClick)
+
+      function handleSubmitClick(e) {
+         e.preventDefault()
+         const objectId = document.getElementById('owner-input').value
+         const files = document.getElementById('upload-file-input').files
+
+         const formData = new FormData()
+
+         formData.append('objectId', objectId)
+
+         if(!files.length || !objectId) {
+            showResult('input-error')
+            return
+         }
+         for(let file of files)
+            formData.append('image', file)
+
+         document.getElementById('http-post').classList.remove('no-show')
+
+         fetch('/files', {
+            method: 'POST',
+            body: formData
+         })
+            .then((e) => e.status < 400 ? showResult('http-success') : showResult('http-error'))
+            .catch((error) => showResult('http-error'))
+      }
+
+      function showResult(id) {
+         document.getElementById('http-post').classList.add('no-show')
+         var target = document.getElementById(id)
+         target.classList.remove('no-show')
+         setTimeout(() => target.classList.add('no-show'), 2500)
+      }
+   </script>
+</body>
+
+</html>

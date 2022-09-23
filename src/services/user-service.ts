@@ -98,7 +98,7 @@ class UserService {
             throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar pessoa')
 
          if(!userRepository.deleteUserById(user.id))
-            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar pessoa')
+            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar usuario')
 
          return new SimpleResponse(`Usuario com email '${email}' deletado com sucesso !`)
       } catch (error) {

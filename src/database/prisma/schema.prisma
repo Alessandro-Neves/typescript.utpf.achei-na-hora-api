@@ -34,19 +34,19 @@ model Message {
 }
 
 model Object {
-  id                              Int      @id @default(autoincrement()) @db.UnsignedInt
-  title                           String   @db.VarChar(255)
-  description                     String?  @db.MediumText
-  location                        String?  @db.VarChar(255)
-  type                            String?  @db.VarChar(45)
-  tag                             String?  @db.VarChar(45)
-  image                           Bytes?   @db.Blob
-  created_at                      DateTime @default(now()) @db.Timestamp(0)
-  updated_at                      DateTime @db.Timestamp(0)
-  owner_id                        Int      @db.UnsignedInt
-  discoverer_id                   Int      @db.UnsignedInt
-  User_Object_owner_idToUser      User     @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
-  User_Object_discoverer_idToUser User     @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
+  id                              Int          @id @default(autoincrement()) @db.UnsignedInt
+  title                           String       @db.VarChar(255)
+  description                     String?      @db.MediumText
+  location                        String?      @db.VarChar(255)
+  type                            Object_type?
+  tag                             String?      @db.VarChar(45)
+  image                           Bytes?       @db.Blob
+  created_at                      DateTime     @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime     @db.Timestamp(0)
+  owner_id                        Int?         @db.UnsignedInt
+  discoverer_id                   Int?         @db.UnsignedInt
+  User_Object_owner_idToUser      User?        @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
+  User_Object_discoverer_idToUser User?        @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
 
   @@index([discoverer_id], map: "discoverer_id")
   @@index([owner_id], map: "owner_id")
@@ -64,4 +64,9 @@ model Person {
   User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
 
   @@index([user_id], map: "user_id")
+}
+
+enum Object_type {
+  ACHADO
+  PERDIDO
 }
