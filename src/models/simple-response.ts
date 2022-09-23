@@ -1,7 +1,7 @@
 export class SimpleResponse {
-  constructor(msg: string) {
-    this.msg = msg
+  constructor(message: string) {
+    this.message = message
   }
 
-  msg: string
+  message: string
 }
