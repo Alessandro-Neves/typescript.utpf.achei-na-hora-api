@@ -2,8 +2,8 @@ import { Router, Request, Response } from 'express'
 
 import multer from 'multer';
 import path from 'path'
+import { uploadManipulator } from '../middleware/upload/upload-manipulator';
 
-import { uploadManipulator } from '../middleware/upload/upload-manipulator'
 import ExceptionHttpResponse from '../models/exception-http';
 
 export const filesController: Router = Router()
@@ -17,16 +17,20 @@ export const filesController: Router = Router()
 
 
 // const multerMiddleware = multer({ dest: 'files/' })
-const multerMiddleware = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'files/'),
-    filename: (req, file, cb) => cb(null, `${new Date().valueOf()}_${file.originalname}`)
-  })
-})
 
-filesController.post('/', multerMiddleware.array('image'), function (req, res, next) {
-  if(!req.files) return res.status(409).json(new ExceptionHttpResponse(409, 'Nenhum arquivo disponibilizado para upload !'))
-  var fileInfos = (req.files as any[]).map((file: any) => { return {name: file.originalname, path: file.path} as {name: string, path: string}} )
+// const multerMiddleware = multer({
+//   storage: multer.diskStorage({
+//     destination: (req, file, cb) => cb(null, 'files/'),
+//     filename: (req, file, cb) => cb(null, `${new Date().valueOf()}_${file.originalname}`)
+//   })
+// })
+
+const allowedExtensions = ['png', 'jpg']
+
+filesController.post('/', uploadManipulator.asMiddleware('image', 'files/', allowedExtensions), function (req, res, next) {
+  if(!req.files) return res.status(409).json(new ExceptionHttpResponse(400, 'Nenhum arquivo disponibilizado para upload !'))
+  if(!req.files.length) return res.status(415).json(new ExceptionHttpResponse(415, 'Formato de arquivo inválido !'))
+  var fileInfos = (req.files as any[]).map((file: any) => { return {name: file.filename, path: file.path} as {name: string, path: string}} )
   return res.status(201).json({message: 'uploaded!', file: fileInfos})
 })
 
