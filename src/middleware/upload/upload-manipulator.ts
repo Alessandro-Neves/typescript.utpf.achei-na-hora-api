@@ -1,97 +1,56 @@
 import multer from "multer"
-import path from 'path'
+import { v4 as uuidV4} from 'uuid'
 import fs from 'fs'
-import mime from "mime";
+
+function getExtensionFile(fileName: string): string {
+   const splittedName = fileName.split('.')
+   return splittedName[splittedName.length - 1]
+}
+
+function verifyExtensionFile(fileName: string, extensions: string[]): boolean {
+   var fileNameIsOneOfTheExtensions = false
+
+   for(let extension of extensions)
+      if(getExtensionFile(fileName) === extension) fileNameIsOneOfTheExtensions = true
+   
+   return fileNameIsOneOfTheExtensions
+}
 
 class UploadManipulator {
-  constructor() { }
 
-  private URL: string = path.basename('upload')
+   private storage(destPath: string): multer.StorageEngine {
+      return multer.diskStorage({
+         destination: (req, file, cb) => {
+            if (!fs.existsSync(destPath)) {
+               fs.mkdirSync(destPath);
+            }
+            cb(null, destPath)
+         },
+         filename: (req, file, cb) => cb(null, `${uuidV4()}.${getExtensionFile(file.originalname)}`),
+      })
+   }
 
-  /**
-   * Método responsável por armazenar os arquivos
-   */
-  private storage(): multer.StorageEngine {
-    /*
-          Essa configuração irá nos ajudar
-          1 - O destino do arquivo 
-          2 - E o nome do arquivo
-        */
-    return multer.diskStorage({
-      //Criar o destino do arquivo
-      destination: (req, file, cb) => {
-        //Verifica se não existe o diretório
-        if (!fs.existsSync(this.URL)) {
-          //Efetua a criação do diretório caso ele não exista
-          fs.mkdirSync(this.URL);
-        }
-        //Define o caminho da pasta
-        cb(null, this.URL);
-      },
-      //Renomeia o arquivo
-      filename: (req, file, cb) => {
-        //Aqui vamos usar o mime-type para chegar o tipo do arquivo
-        //E predefinir como ele veio até nosso sistema
-        const type = mime.getExtension(file.mimetype);
-
-        //Renomeia o nome do arquivo
-        //Aqui temos o nome do arquivo gerado pelo Date
-        //E colocamos a extensão dele de acordo com o mime-type
-        cb(null, `${new Date().getTime()}.${type}`);
-      },
-    });
-  }
-
-  /**
-   * Realiza a verificação do arquivo
-   */
-  private fileFilter() {
-    /*
-          Essa configuração vai nos ajudar com 
-          1 - A validação do arquivo
-        */
-    return (
-      req: Request,
-      file: Express.Multer.File,
-      cb: multer.FileFilterCallback
-    ) => {
-      //Utilizaremos a Lib mime-types para identificar o tipo do arquivo
-      console.log('entrou')
-      const type = mime.getExtension(file.mimetype);
-
-      /* 
-        Este array será montado a conditions de validação
-        No caso aceitará apenas imagens como "png", "jpg", "jpeg"
-      */
-      const conditions = ["png", "jpg", "jpeg"];
-
-      //Perguntamos se existe algum desses valores no type
-      if (conditions.includes(`${type}`)) {
-        //Caso exista, teremos nossa imagem linda maravilhosa
-        cb(null, true);
+   private filter(allowedExtensions: string[]): (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => void {
+      return (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+         const allowedExtension = verifyExtensionFile(file.originalname, allowedExtensions)
+         cb(null, allowedExtension)
       }
+   }
 
-      //Caso não de certo a validação não efetuaremos o upload
-      cb(null, false);
-    };
-  }
+   public getConfig(destPath: string, allowedExtensions: string[]): multer.Options {
+      return {
+         storage: this.storage(destPath),
+         fileFilter: this.filter(allowedExtensions)
+      }
+   }
 
-  /**
-   * Configuração do moddleware
+   /**
+   *  @returns Instância do multer configurada como um middleware.
+   *  @param target nome da propriedade na form que conterá os arquivos na request.
    */
-  get getConfig(): multer.Options {
-    /*
-      Essa configuração vai nos ajudar com 
-      1 - A compor as configs do Multer como Middleware em nossas rotas
-      2 - Não será um middleware global e sim para usos unicos e comportamentais
-    */
-    return {
-      //Storage serve para compor a config do multer destination e filename
-      storage: this.storage(),
-      //FileFilter serve para validar o filtro de arquivos
-      fileFilter: this.fileFilter,
-    };
-  }
+   public asMiddleware(target: string, path: string, allowedExtensions: string[]) {
+      return multer(this.getConfig(path, allowedExtensions)).array(target)
+   }
 
 }
 

@@ -66,6 +66,11 @@ model Person {
   @@index([user_id], map: "user_id")
 }
 
+model Image {
+  id     Int    @id @default(autoincrement()) @db.UnsignedInt
+  source String @db.VarChar(255)
+}
+
 enum Object_type {
   ACHADO
   PERDIDO
