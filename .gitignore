@@ -1,3 +1,7 @@
+#files
+files/*
+files/images
+
 # Logs
 logs
 *.log

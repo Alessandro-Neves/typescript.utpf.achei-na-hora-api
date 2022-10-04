@@ -47,31 +47,17 @@ create table `lost&found`.`Object` (
   foreign key (`discoverer_id`) references `lost&found`.`User` (`id`)
 );
 
+create table `lost&found`.`Image` (
+  `id` integer unsigned not null auto_increment primary key,
+  `source` varchar(255) not null,
+  `use` ENUM('GENERAL', 'OBJECT')
+);
 
--- ALTER DATABASE `lost&found` CHARSET = Latin1 COLLATE = utf8_swedish_ci;
-
--- insert into `lost&found`.`User` (email, password, updated_at) values (
---   "ale@gmail.com",
---   "ale123",
---   now()
--- );
-
--- insert into `lost&found`.`User` (email, password, updated_at) values (
---   "asuarioêê2@email.com",
---   "usuario2",
---   now()
--- );
-
--- insert into `lost&found`.`Person` (full_name, nickname, image, campus, updated_at, user_id) values (
---   "Alessandro Neves dos Santos",
---   "Alê",
---   null,
---   "Campo-Mourão",
---   now(),
---   3
--- );
-
--- update `lost&found`.`User` as U 
--- set password = "usuario2"
--- where U.email = "usuario2@email.com";
+create table `lost&found`.`Object_Image` (
+  `id_obj` integer unsigned not null,
+  `id_img` integer unsigned not null,
+  primary key(`id_obj`, `id_img`),
+  foreign key (`id_obj`) references `lost&found`.`Object` (`id`),
+  foreign key (`id_img`) references `lost&found`.`Image` (`id`)
+);
 
