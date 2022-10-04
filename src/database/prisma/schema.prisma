@@ -34,19 +34,20 @@ model Message {
 }
 
 model Object {
-  id                              Int          @id @default(autoincrement()) @db.UnsignedInt
-  title                           String       @db.VarChar(255)
-  description                     String?      @db.MediumText
-  location                        String?      @db.VarChar(255)
+  id                              Int            @id @default(autoincrement()) @db.UnsignedInt
+  title                           String         @db.VarChar(255)
+  description                     String?        @db.MediumText
+  location                        String?        @db.VarChar(255)
   type                            Object_type?
-  tag                             String?      @db.VarChar(45)
-  image                           Bytes?       @db.Blob
-  created_at                      DateTime     @default(now()) @db.Timestamp(0)
-  updated_at                      DateTime     @db.Timestamp(0)
-  owner_id                        Int?         @db.UnsignedInt
-  discoverer_id                   Int?         @db.UnsignedInt
-  User_Object_owner_idToUser      User?        @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
-  User_Object_discoverer_idToUser User?        @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
+  tag                             String?        @db.VarChar(45)
+  image                           Bytes?         @db.Blob
+  created_at                      DateTime       @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime       @db.Timestamp(0)
+  owner_id                        Int?           @db.UnsignedInt
+  discoverer_id                   Int?           @db.UnsignedInt
+  User_Object_owner_idToUser      User?          @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
+  User_Object_discoverer_idToUser User?          @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
+  Object_Image                    Object_Image[]
 
   @@index([discoverer_id], map: "discoverer_id")
   @@index([owner_id], map: "owner_id")
@@ -67,11 +68,28 @@ model Person {
 }
 
 model Image {
-  id     Int    @id @default(autoincrement()) @db.UnsignedInt
-  source String @db.VarChar(255)
+  id           Int            @id @default(autoincrement()) @db.UnsignedInt
+  source       String         @db.VarChar(255)
+  use          Image_use?
+  Object_Image Object_Image[]
+}
+
+model Object_Image {
+  id_obj Int    @db.UnsignedInt
+  id_img Int    @db.UnsignedInt
+  Object Object @relation(fields: [id_obj], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_Image_ibfk_1")
+  Image  Image  @relation(fields: [id_img], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_Image_ibfk_2")
+
+  @@id([id_obj, id_img])
+  @@index([id_img], map: "id_img")
 }
 
 enum Object_type {
   ACHADO
   PERDIDO
+}
+
+enum Image_use {
+  GENERAL
+  OBJECT
 }

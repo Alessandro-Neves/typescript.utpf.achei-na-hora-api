@@ -1,12 +1,13 @@
 import { Prisma } from "..";
-import { Image } from "@prisma/client";
+import { Image, Image_use } from "@prisma/client";
 
 
 class ImageRepository {
-   public async createImage(source: string): Promise<Image> {
+   public async createImage(source: string, type: Image_use): Promise<Image> {
       return await Prisma.image.create({
          data: {
-            source
+            source,
+            use: type
          }
       })
    }
@@ -15,6 +16,10 @@ class ImageRepository {
       return await Prisma.image.findFirst({
          where: { id }
       }) ?? undefined
+   }
+
+   public async findAllImages(): Promise<Image[]> {
+      return await Prisma.image.findMany() ?? []
    }
 }
 

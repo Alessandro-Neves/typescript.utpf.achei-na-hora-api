@@ -49,5 +49,15 @@ create table `lost&found`.`Object` (
 
 create table `lost&found`.`Image` (
   `id` integer unsigned not null auto_increment primary key,
-  `source` varchar(255) not null
-)
+  `source` varchar(255) not null,
+  `use` ENUM('GENERAL', 'OBJECT')
+);
+
+create table `lost&found`.`Object_Image` (
+  `id_obj` integer unsigned not null,
+  `id_img` integer unsigned not null,
+  primary key(`id_obj`, `id_img`),
+  foreign key (`id_obj`) references `lost&found`.`Object` (`id`),
+  foreign key (`id_img`) references `lost&found`.`Image` (`id`)
+);
+

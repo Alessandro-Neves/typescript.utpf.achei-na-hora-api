@@ -1,3 +1,4 @@
+import { Image_use } from '@prisma/client';
 import { Router, Request, Response } from 'express'
 
 import path from 'path'
@@ -15,14 +16,16 @@ imageController.post('/', uploadManipulator.asMiddleware('image', 'files/images'
    if (!req.files.length) return res.status(415).json(new ExceptionHttpResponse(415, 'Formato de arquivo inválido !'))
    var fileInfos = (req.files as any[]).map((file: any) => { return { name: file.originalname, path: file.path } as { name: string, path: string } })
 
-   var persistedFiles: ({ id: number, source: string, originalName: string })[] = []
+   var persistedFiles: ({ id: number, source: string, originalName: string, type: string })[] = []
 
    for (let file of fileInfos) {
-      var image = await imageRepository.createImage(file.path)
+      var image = await imageRepository.createImage(file.path, Image_use.GENERAL)
+      console.log(image)
       persistedFiles.push({
          id: image.id,
          source: '/image/' + image.id,
          originalName: file.name,
+         type: image.use?.toString() ?? 'NOT'
       })
    }
 
@@ -45,5 +48,26 @@ imageController.get('/:imageId', async (req: Request, res: Response) => {
    }
 })
 
-imageController.get('/', (req: Request, res: Response) => res.sendFile(path.join(path.resolve(), 'static/admin-upload.html')))
+imageController.get('/', async (req: Request, res: Response) => {
+
+   try {
+      const images = await imageRepository.findAllImages()
+
+      var response = images.map(img => {
+         return {
+            src: '/image/' + img.id,
+            type: img.use
+         }
+      })
+
+      return res.status(200).json(response)
+
+   } catch (erro) {
+      return res.status(404).json(new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: get imagens'))
+   }
+})
+
+imageController.get('/up', (req: Request, res: Response) => res.sendFile(path.join(path.resolve(), 'static/admin-upload.html')))
+
+
 
