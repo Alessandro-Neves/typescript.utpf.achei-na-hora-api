@@ -1,6 +1,105 @@
 create schema `lost&found` default character set latin2;
 ALTER DATABASE `lost&found` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci; 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+TABELAS SÂO CONTROLADAS PELO PRISMA MIGRATE
+
 create table `lost&found`.`User` (
   `id` integer unsigned not null auto_increment primary key,
   `email` varchar(255) unique not null,
@@ -61,3 +160,4 @@ create table `lost&found`.`Object_Image` (
   foreign key (`id_img`) references `lost&found`.`Image` (`id`)
 );
 
+*/

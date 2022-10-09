@@ -1,4 +1,4 @@
-import { Object_type, Object } from "@prisma/client";
+import { ObjectType, Object, ObjectStatus } from "@prisma/client";
 import { Prisma } from "..";
 
 class ObjectRepository {
@@ -6,9 +6,8 @@ class ObjectRepository {
     title: string, 
     description: string,
     location: string,
-    type: Object_type,
+    type: ObjectType,
     tag: string,
-    image: any,
     ownerId?: number,
     discovererId?: number
   ): Promise<Object> {
@@ -18,9 +17,37 @@ class ObjectRepository {
         description,
         location,
         type,
+        status: ObjectStatus.ACTIVE,
         tag,
-        image,
-        updated_at: new Date(),
+        ownerId,
+        discovererId,
+        updatedAt: new Date(),
+      }
+    })
+  }
+
+  public async findObject(id: number) {
+    var response = await Prisma.object.findFirst({
+      where: { id: id },
+      include: { images: true }
+    })
+
+    return response ?? undefined
+  }
+
+  public async findObjectsByUserId(id: number) {
+    return await Prisma.object.findMany({
+      where: {
+        OR: [ {ownerId: id },{ discovererId: id } ]
+      },
+      include: { images: true }
+    }) ?? []
+  }
+
+  public async deleteObject(id: number) {
+    return await Prisma.object.delete({
+      where: {
+        id: id
       }
     })
   }

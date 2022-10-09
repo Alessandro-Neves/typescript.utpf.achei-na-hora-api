@@ -9,7 +9,7 @@ class UserRepository {
          data: {
             email,
             password,
-            updated_at: new Date()
+            updatedAt: new Date()
          }
       })
    }
@@ -22,7 +22,15 @@ class UserRepository {
       }) ?? undefined
    }
 
-   public async deleteUserById(id: number): Promise<Boolean> {
+   public async findUser(id: number): Promise <User | undefined> {
+      return await Prisma.user.findFirst({
+         where: {
+            id: id
+         }
+      }) ?? undefined
+   }
+
+   public async deleteUser(id: number): Promise<Boolean> {
       try {
          await Prisma.user.delete({
             where: {
