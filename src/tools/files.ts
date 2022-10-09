@@ -5,11 +5,10 @@ import { logger } from './logger'
 import { ConsoleError } from './console'
 
 export const pathAddress = (filePath: string): string => {
-  throw new Error()
   return path.join(path.resolve(), filePath)
 }
 
-export const removePath = (filePath: string): boolean => {
+export const removeFile = (filePath: string): boolean => {
   try {
     fs.unlinkSync(pathAddress(filePath))
     return true

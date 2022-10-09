@@ -7,7 +7,6 @@ class ObjectRepository {
     description: string,
     location: string,
     type: ObjectType,
-    tag: string,
     ownerId?: number,
     discovererId?: number
   ): Promise<Object> {
@@ -18,7 +17,6 @@ class ObjectRepository {
         location,
         type,
         status: ObjectStatus.ACTIVE,
-        tag,
         ownerId,
         discovererId,
         updatedAt: new Date(),
