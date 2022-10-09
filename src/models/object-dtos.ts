@@ -6,7 +6,6 @@ export type ObjectCreateRequestDTO = {
    description: string,
    location: string,
    type: ObjectType,
-   tag: string,
    image: any,
    ownerId?: number,
    discovererId?: number
@@ -18,7 +17,6 @@ export type ObjectResponseDTO = {
    description: string,
    location: string,
    type: ObjectType,
-   tag: string,
    images: string[]
    owner: number | null,
    discoverer: number | null,
@@ -26,10 +24,10 @@ export type ObjectResponseDTO = {
 }
 
 export const isObjectResponseDTO = (obj: any): obj is ObjectResponseDTO => 
-   !!(obj.title && obj.description && obj.location && obj.type && obj.tag && obj.images && (obj.owner || obj.discoverer))
+   !!(obj.title && obj.description && obj.location && obj.type && obj.images && (obj.owner || obj.discoverer))
 
 export const isObjectCreateRequestDTO = (obj: any): obj is ObjectCreateRequestDTO =>
-   !!(obj.title && obj.description && obj.location && obj.type && obj.tag)
+   !!(obj.title && obj.description && obj.location && obj.type)
 
 const imageToLink = (image: Image): string => {
    return `${env.IMAGES_HOST}/images/image/${image.id}`
@@ -45,7 +43,6 @@ export const objectToObjectResponseDTO = (obj: any): ObjectResponseDTO => {
       owner: obj.ownerId,
       discoverer: obj.discovererId,
       location: obj.location ?? '',
-      tag: obj.tag ?? '',
       type: obj.type,
       status: obj.status,
       images: images

@@ -5,6 +5,8 @@ import { ImageUse, ObjectType } from "@prisma/client"
 import { imageRepository } from "../database/repositories/image-repository"
 import { userRepository } from "../database/repositories/user-repository"
 import { imageService } from "./image-service"
+import { SimpleResponse } from "../models/simple-response"
+import { removeFile } from "../tools/files"
 
 
 class ObjectService {
@@ -28,7 +30,6 @@ class ObjectService {
       dto.description,
       dto.location,
       dto.type,
-      dto.tag,
       dto.ownerId,
       dto.discovererId
     )
@@ -46,7 +47,10 @@ class ObjectService {
 
     var object = await objectRepository.findObject(objectId)
 
-    if(!object) throw new NotFoundException('object not found')
+    if(!object) {
+      files.forEach(file => removeFile(file.path))
+      throw new NotFoundException('object not found')
+    }
 
     var fileInfos = (files as any[]).map((file: any) => { return { name: file.originalname, path: file.path } as { name: string, path: string } })
 
@@ -94,6 +98,8 @@ class ObjectService {
      */
 
     await objectRepository.deleteObject(id)
+
+    return new SimpleResponse(`object '${object.title}' deleted successfully !`)
  }
 }
 

@@ -1,6 +1,6 @@
 import { imageRepository } from "../database/repositories/image-repository"
 import { NotFoundException } from "../models/exception-http"
-import { removePath } from "../tools/files"
+import { removeFile } from "../tools/files"
 
 class ImageService {
   public async deleteImage(id: number) {
@@ -8,7 +8,7 @@ class ImageService {
 
     if(!image) throw new NotFoundException('image not found')
 
-    removePath(image.source)
+    removeFile(image.source)
 
     await imageRepository.deleteImage(id)
   }

@@ -8,28 +8,28 @@ datasource db {
 }
 
 model User {
-  id                                Int       @id @default(autoincrement()) @db.UnsignedInt
-  email                             String    @unique(map: "email") @db.VarChar(255)
-  password                          String    @db.VarChar(255)
-  createdAt                         DateTime  @default(now()) @db.Timestamp(0) @map("created_at")
-  updatedAt                         DateTime  @db.Timestamp(0)  @map("updated_at")
-
-
-  ownerObjects                      Object[]  @relation("Object_ownerUser")
-  foundNoOwnerObjects               Object[]  @relation("Object_noOwnerUser")
+  id                                Int             @id @default(autoincrement()) @db.UnsignedInt
+  email                             String          @unique(map: "email") @db.VarChar(255)
+  password                          String          @db.VarChar(255)
+  createdAt                         DateTime        @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime        @db.Timestamp(0)  @map("updated_at")
+    
+    
+  ownerObjects                      Object[]        @relation("Object_ownerUser")
+  foundNoOwnerObjects               Object[]        @relation("Object_noOwnerUser")
   Person                            Person?
 }
 
 model Person {
-  id                                Int      @id @default(autoincrement()) @db.UnsignedInt
-  full_name                         String   @db.VarChar(255)
-  nickname                          String   @db.VarChar(255)
-  campus                            String?  @db.VarChar(45)
-  createdAt                         DateTime @default(now()) @db.Timestamp(0) @map("created_at")
-  updatedAt                         DateTime @db.Timestamp(0) @map("updated_at")
+  id                                Int             @id @default(autoincrement()) @db.UnsignedInt
+  full_name                         String          @db.VarChar(255)
+  nickname                          String          @db.VarChar(255)
+  campus                            String?         @db.VarChar(45)
+  createdAt                         DateTime        @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime        @db.Timestamp(0) @map("updated_at")
 
-  userId                            Int      @unique @db.UnsignedInt @map("user_id")
-  imageId                           Int?      @unique @db.UnsignedInt @map("image_id")
+  userId                            Int             @unique @db.UnsignedInt @map("user_id")
+  imageId                           Int?            @unique @db.UnsignedInt @map("image_id")
 
 
   user       User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
@@ -39,38 +39,56 @@ model Person {
 }
 
 model Object {
-  id                                Int            @id @default(autoincrement()) @db.UnsignedInt
-  title                             String         @db.VarChar(255)
-  description                       String?        @db.MediumText
-  location                          String?        @db.VarChar(255)
+  id                                Int             @id @default(autoincrement()) @db.UnsignedInt
+  title                             String          @db.VarChar(255)
+  description                       String?         @db.MediumText
+  location                          String?         @db.VarChar(255)
   type                              ObjectType
   status                            ObjectStatus
-  tag                               String?        @db.VarChar(45)
-  createdAt                         DateTime       @default(now()) @db.Timestamp(0) @map("created_at")
-  updatedAt                         DateTime       @db.Timestamp(0) @map("updated_at")
+  createdAt                         DateTime        @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime        @db.Timestamp(0) @map("updated_at")
 
 
-  ownerId                           Int?           @db.UnsignedInt @map("owner_id")
-  discovererId                      Int?           @db.UnsignedInt @map("discoverer_id")
+  ownerId                           Int?            @db.UnsignedInt @map("owner_id")
+  discovererId                      Int?            @db.UnsignedInt @map("discoverer_id")
 
 
-  images                            Image[]        @relation("Image_Object")
-  owner                             User?          @relation("Object_ownerUser", fields: [ownerId], references: [id])
-  discoverer                        User?          @relation("Object_noOwnerUser", fields: [discovererId], references: [id])
+  images                            Image[]         @relation("Image_Object")
+  owner                             User?           @relation("Object_ownerUser", fields: [ownerId], references: [id])
+  discoverer                        User?           @relation("Object_noOwnerUser", fields: [discovererId], references: [id])
+  tags                              TagsOnObjects[]
 
   @@index([discovererId], map: "discoverer_id")
   @@index([ownerId], map: "owner_id")
 }
 
+model Tag {
+  id                                Int             @id @default(autoincrement()) @db.UnsignedInt
+  title                             String          @db.VarChar(255)
+  description                       String?         @db.MediumText
+
+  objecs                            TagsOnObjects[]
+}
+
+model TagsOnObjects {
+  objectId                          Int            @db.UnsignedInt @map("object_id")
+  tagId                             Int            @db.UnsignedInt @map("tag_id")
+
+  object                            Object         @relation(fields: [objectId], references: [id])
+  tag                               Tag            @relation(fields: [tagId], references: [id])
+
+  @@id([objectId, tagId])
+}
+
 model Image {
-  id                                Int            @id @default(autoincrement()) @db.UnsignedInt
-  source                            String        @db.VarChar(255)
+  id                                Int             @id @default(autoincrement()) @db.UnsignedInt
+  source                            String          @db.VarChar(255)
   use                               ImageUse
                     
-  objectId                          Int?           @db.UnsignedInt @map("object_id")   
-  personId                          Int?           @db.UnsignedInt @map("person_id")
-                  
-  object                            Object?        @relation("Image_Object", fields: [objectId], references: [id])
+  objectId                          Int?            @db.UnsignedInt @map("object_id")   
+  personId                          Int?            @db.UnsignedInt @map("person_id")
+
+  object                            Object?         @relation("Image_Object", fields: [objectId], references: [id])
   person                            Person?
 }
 

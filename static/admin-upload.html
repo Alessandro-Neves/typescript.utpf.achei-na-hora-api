@@ -123,7 +123,7 @@
 
          document.getElementById('http-post').classList.remove('no-show')
 
-         fetch('/object/images/6', {
+         fetch(`/object/images/${objectId}`, {
             method: 'POST',
             body: formData
          })

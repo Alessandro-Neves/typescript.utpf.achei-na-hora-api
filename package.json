@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "prisma": {
-    "schema": "./src/database/prisma/schema.prisma"
+    "schema": "./src/database/prisma/schema.prisma",
+    "seed": "ts-node --transpile-only ./src/database/prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^4.3.1",
@@ -20,11 +21,11 @@
   },
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "dev:restart": "npx prisma generate && nodemon src/index.ts",
-    "linux:fuser": "fuser -k 3030/tcp && yarn dev:restart",
+    "dev:restart": "npx prisma db push && npx prisma generate && nodemon src/index.ts",
     "build": "tsc --project .",
     "start": "npx ts-node src/index.ts",
-    "restart": "npx prisma generate && yarn start",
+    "restart": "npx prisma db push && npx prisma generate && yarn start",
+    "db:seed": "ts-node --transpile-only ./src/database/prisma/seed.ts",
     "linux:kill": "fuser -k 3030/tcp",
     "test": "npx ts-node test.ts"
   },

@@ -23,7 +23,7 @@ class AuthService {
 
       if (user.password != dto.password) throw new ForbiddenException('failed authentication')
 
-      return new LoginResponseDTO(user.email, '5f4dcc3b5aa765d61d8327deb882cf99')
+      return new LoginResponseDTO(user.id, '5f4dcc3b5aa765d61d8327deb882cf99')
    }
 }
 
