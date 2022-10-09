@@ -1,6 +1,9 @@
 import multer from "multer"
 import { v4 as uuidV4} from 'uuid'
 import fs from 'fs'
+import { NextFunction, Request, Response } from "express"
+
+import { PayloadTooLargeException, BadRequestException, InternalServerErrorException, HttpException } from '../../models/exception-http'
 
 function getExtensionFile(fileName: string): string {
    const splittedName = fileName.split('.')
@@ -37,22 +40,43 @@ class UploadManipulator {
       }
    }
 
-   public getConfig(destPath: string, allowedExtensions: string[]): multer.Options {
+   public getConfig(destPath: string, allowedExtensions: string[], maxSizeFile: number): multer.Options {
       return {
          storage: this.storage(destPath),
-         fileFilter: this.filter(allowedExtensions)
+         fileFilter: this.filter(allowedExtensions),
+         limits: {
+          fileSize: maxSizeFile
+         }
       }
    }
 
    /**
-   *  @returns Instância do multer configurada como um middleware.
-   *  @param target nome da propriedade na form que conterá os arquivos na request.
+   *  @returns Multer instance configured as a middleware
+   *  @param target property name in the form-data that will contain the files to persist.
    */
-   public asMiddleware(target: string, path: string, allowedExtensions: string[]) {
-      return multer(this.getConfig(path, allowedExtensions)).array(target)
+   public asMiddleware(target: string, path: string, allowedExtensions: string[], maxSizeFile: number = 5242880) {
+      var instanceMulter = multer(this.getConfig(path, allowedExtensions, maxSizeFile)).array(target)
+
+      return (req: Request, res: Response, next: NextFunction) => {
+        instanceMulter(req, res, (error: any) => {
+          try {
+            if(error instanceof multer.MulterError){
+              if(error.message === 'File too large')
+                throw new PayloadTooLargeException()
+              throw new BadRequestException(error.message)
+            }else if(error)
+              throw new InternalServerErrorException()
+            
+          } catch (err) {
+            if(err instanceof HttpException)
+              return res.status(err.statusCode).json(err)
+            return res.status(500).json(new InternalServerErrorException())
+          }
+          next()
+        })
+      } 
    }
 
 }
 
 export const uploadManipulator = new UploadManipulator()
-

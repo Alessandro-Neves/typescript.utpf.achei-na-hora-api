@@ -11,85 +11,80 @@ model User {
   id                                Int       @id @default(autoincrement()) @db.UnsignedInt
   email                             String    @unique(map: "email") @db.VarChar(255)
   password                          String    @db.VarChar(255)
-  created_at                        DateTime  @default(now()) @db.Timestamp(0)
-  updated_at                        DateTime  @db.Timestamp(0)
-  Message_Message_origin_idToUser   Message[] @relation("Message_origin_idToUser")
-  Message_Message_destiny_idToUser  Message[] @relation("Message_destiny_idToUser")
-  Object_Object_owner_idToUser      Object[]  @relation("Object_owner_idToUser")
-  Object_Object_discoverer_idToUser Object[]  @relation("Object_discoverer_idToUser")
-  Person                            Person[]
-}
+  createdAt                         DateTime  @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime  @db.Timestamp(0)  @map("updated_at")
 
-model Message {
-  id                            Int      @id @default(autoincrement()) @db.UnsignedInt
-  message                       String   @db.MediumText
-  created_at                    DateTime @default(now()) @db.Timestamp(0)
-  origin_id                     Int      @db.UnsignedInt
-  destiny_id                    Int      @db.UnsignedInt
-  User_Message_origin_idToUser  User     @relation("Message_origin_idToUser", fields: [origin_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Message_ibfk_1")
-  User_Message_destiny_idToUser User     @relation("Message_destiny_idToUser", fields: [destiny_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Message_ibfk_2")
 
-  @@index([destiny_id], map: "destiny_id")
-  @@index([origin_id], map: "origin_id")
-}
-
-model Object {
-  id                              Int            @id @default(autoincrement()) @db.UnsignedInt
-  title                           String         @db.VarChar(255)
-  description                     String?        @db.MediumText
-  location                        String?        @db.VarChar(255)
-  type                            Object_type?
-  tag                             String?        @db.VarChar(45)
-  image                           Bytes?         @db.Blob
-  created_at                      DateTime       @default(now()) @db.Timestamp(0)
-  updated_at                      DateTime       @db.Timestamp(0)
-  owner_id                        Int?           @db.UnsignedInt
-  discoverer_id                   Int?           @db.UnsignedInt
-  User_Object_owner_idToUser      User?          @relation("Object_owner_idToUser", fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_1")
-  User_Object_discoverer_idToUser User?          @relation("Object_discoverer_idToUser", fields: [discoverer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_ibfk_2")
-  Object_Image                    Object_Image[]
-
-  @@index([discoverer_id], map: "discoverer_id")
-  @@index([owner_id], map: "owner_id")
+  ownerObjects                      Object[]  @relation("Object_ownerUser")
+  foundNoOwnerObjects               Object[]  @relation("Object_noOwnerUser")
+  Person                            Person?
 }
 
 model Person {
-  id         Int      @id @default(autoincrement()) @db.UnsignedInt
-  full_name  String   @db.VarChar(255)
-  nickname   String   @db.VarChar(255)
-  image      Bytes?   @db.Blob
-  campus     String?  @db.VarChar(45)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @db.Timestamp(0)
-  user_id    Int      @db.UnsignedInt
-  User       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
+  id                                Int      @id @default(autoincrement()) @db.UnsignedInt
+  full_name                         String   @db.VarChar(255)
+  nickname                          String   @db.VarChar(255)
+  campus                            String?  @db.VarChar(45)
+  createdAt                         DateTime @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime @db.Timestamp(0) @map("updated_at")
 
-  @@index([user_id], map: "user_id")
+  userId                            Int      @unique @db.UnsignedInt @map("user_id")
+  imageId                           Int?      @unique @db.UnsignedInt @map("image_id")
+
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
+  image      Image?    @relation(fields: [imageId], references: [id])
+
+  @@index([userId], map: "user_id")
+}
+
+model Object {
+  id                                Int            @id @default(autoincrement()) @db.UnsignedInt
+  title                             String         @db.VarChar(255)
+  description                       String?        @db.MediumText
+  location                          String?        @db.VarChar(255)
+  type                              ObjectType
+  status                            ObjectStatus
+  tag                               String?        @db.VarChar(45)
+  createdAt                         DateTime       @default(now()) @db.Timestamp(0) @map("created_at")
+  updatedAt                         DateTime       @db.Timestamp(0) @map("updated_at")
+
+
+  ownerId                           Int?           @db.UnsignedInt @map("owner_id")
+  discovererId                      Int?           @db.UnsignedInt @map("discoverer_id")
+
+
+  images                            Image[]        @relation("Image_Object")
+  owner                             User?          @relation("Object_ownerUser", fields: [ownerId], references: [id])
+  discoverer                        User?          @relation("Object_noOwnerUser", fields: [discovererId], references: [id])
+
+  @@index([discovererId], map: "discoverer_id")
+  @@index([ownerId], map: "owner_id")
 }
 
 model Image {
-  id           Int            @id @default(autoincrement()) @db.UnsignedInt
-  source       String         @db.VarChar(255)
-  use          Image_use?
-  Object_Image Object_Image[]
+  id                                Int            @id @default(autoincrement()) @db.UnsignedInt
+  source                            String        @db.VarChar(255)
+  use                               ImageUse
+                    
+  objectId                          Int?           @db.UnsignedInt @map("object_id")   
+  personId                          Int?           @db.UnsignedInt @map("person_id")
+                  
+  object                            Object?        @relation("Image_Object", fields: [objectId], references: [id])
+  person                            Person?
 }
 
-model Object_Image {
-  id_obj Int    @db.UnsignedInt
-  id_img Int    @db.UnsignedInt
-  Object Object @relation(fields: [id_obj], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_Image_ibfk_1")
-  Image  Image  @relation(fields: [id_img], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Object_Image_ibfk_2")
-
-  @@id([id_obj, id_img])
-  @@index([id_img], map: "id_img")
+enum ObjectStatus {
+  ACTIVE
+  FINISHED
 }
 
-enum Object_type {
-  ACHADO
-  PERDIDO
+enum ObjectType {
+  FOUND
+  LOST
 }
 
-enum Image_use {
+enum ImageUse {
   GENERAL
   OBJECT
 }

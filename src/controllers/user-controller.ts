@@ -1,31 +1,32 @@
 import { Request, Response, Router } from 'express'
-import ExceptionHttpResponse from '../models/exception-http'
-import { SimpleResponse } from '../models/simple-response'
-import { UserCreateRequestDTO, UserResponseDto } from '../models/user-dtos'
-import AuthService from '../services/auth-service'
+import { HttpExceptionHandler } from '../models/exception-http'
 import { userService } from '../services/user-service'
 
 const userController = Router()
 
+/* create user */
 userController.post('/', async (req: Request, res: Response) => {
-   var response = await userService.createUser(req.body)
-
-   if (response instanceof SimpleResponse) return res.status(201).json(response)
-   else return res.status(response.status).json(response)
+   try {
+      var response = await userService.createUser(req.body)
+      res.status(200).json(response)
+   } catch (err) { HttpExceptionHandler(res, err) }
 })
 
+/* get user */
 userController.get('/:email', async (req: Request, res: Response) => {
-   var response = await userService.findUserByEmail(req.params.email)
-
-   if (response instanceof UserResponseDto) return res.status(200).json(response)
-   else return res.status(response.status).json(response)
+   try {
+      var response = await userService.findUserByEmail(req.params.email)
+      res.status(200).json(response)
+   } catch (err) { HttpExceptionHandler(res, err) }
 })
 
+/* delete user */
 userController.delete('/:email', async (req: Request, res: Response) => {
-   var response = await userService.deleteUserByEmail(req.params.email)
-
-   if (response instanceof SimpleResponse) return res.status(200).json(response)
-   else return res.status(response.status).json(response)
+   try {
+      var response = await userService.deleteUserByEmail(req.params.email)
+      res.status(200).json(response)
+   } catch (err) { HttpExceptionHandler(res, err) }
 })
+
 
 export default userController

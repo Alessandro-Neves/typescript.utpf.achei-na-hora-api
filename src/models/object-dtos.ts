@@ -1,10 +1,11 @@
-import { Object_type } from "@prisma/client"
+import { ObjectStatus, ObjectType, Image } from "@prisma/client"
+import { env } from 'process'
 
 export type ObjectCreateRequestDTO = {
    title: string,
    description: string,
    location: string,
-   type: Object_type,
+   type: ObjectType,
    tag: string,
    image: any,
    ownerId?: number,
@@ -12,14 +13,16 @@ export type ObjectCreateRequestDTO = {
 }
 
 export type ObjectResponseDTO = {
+   id: number,
    title: string,
    description: string,
    location: string,
-   type: Object_type | null,
+   type: ObjectType,
    tag: string,
    images: string[]
    owner: number | null,
-   discoverer: number | null
+   discoverer: number | null,
+   status: ObjectStatus
 }
 
 export const isObjectResponseDTO = (obj: any): obj is ObjectResponseDTO => 
@@ -27,3 +30,24 @@ export const isObjectResponseDTO = (obj: any): obj is ObjectResponseDTO =>
 
 export const isObjectCreateRequestDTO = (obj: any): obj is ObjectCreateRequestDTO =>
    !!(obj.title && obj.description && obj.location && obj.type && obj.tag)
+
+const imageToLink = (image: Image): string => {
+   return `${env.IMAGES_HOST}/images/image/${image.id}`
+}
+
+export const objectToObjectResponseDTO = (obj: any): ObjectResponseDTO => {
+   var images: string[] = obj?.images?.map(imageToLink) ?? []
+
+   return {
+      id: obj.id ?? -1,
+      title: obj.title ?? '',
+      description: obj.description ?? '',
+      owner: obj.ownerId,
+      discoverer: obj.discovererId,
+      location: obj.location ?? '',
+      tag: obj.tag ?? '',
+      type: obj.type,
+      status: obj.status,
+      images: images
+   }
+}
