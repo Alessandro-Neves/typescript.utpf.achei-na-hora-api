@@ -1,4 +1,4 @@
-import { ObjectType, Object, ObjectStatus } from "@prisma/client";
+import { ObjectType, Object, ObjectStatus, prisma } from "@prisma/client";
 import { Prisma } from "..";
 
 class ObjectRepository {
@@ -7,10 +7,11 @@ class ObjectRepository {
     description: string,
     location: string,
     type: ObjectType,
+    tags: number[],
     ownerId?: number,
-    discovererId?: number
+    discovererId?: number,
   ): Promise<Object> {
-    return await Prisma.object.create({
+    var object = await Prisma.object.create({
       data: {
         title,
         description,
@@ -22,12 +23,17 @@ class ObjectRepository {
         updatedAt: new Date(),
       }
     })
+
+    for (let tag of tags) 
+      await this.addTag(object.id, tag)
+
+    return object
   }
 
   public async findObject(id: number) {
     var response = await Prisma.object.findFirst({
       where: { id: id },
-      include: { images: true }
+      include: { images: true, tags: true }
     })
 
     return response ?? undefined
@@ -38,7 +44,7 @@ class ObjectRepository {
       where: {
         OR: [ {ownerId: id },{ discovererId: id } ]
       },
-      include: { images: true }
+      include: { images: true, tags: true }
     }) ?? []
   }
 
@@ -46,6 +52,51 @@ class ObjectRepository {
     return await Prisma.object.delete({
       where: {
         id: id
+      }
+    })
+  }
+
+  private async addTag(objectId: number, tagId: number) {
+    await Prisma.tagsOnObjects.create({
+      data: {
+        objectId,
+        tagId
+      }
+    })
+  }
+
+  public async findTag(id: number) {
+    return await Prisma.tag.findFirst({
+      where: { id: id}
+    })
+  }
+
+  public async findObjectsByTag(id: number) {
+    return await Prisma.object.findMany({
+      where: {
+        tags: {
+          some: {
+            tagId: id
+          }
+        }
+      }
+    })
+  }
+
+  public async searchOnTags(search: string) {
+    return await Prisma.tag.findMany({
+      where: {
+        title: { search: search },
+        description: { search: search }
+      }
+    })
+  }
+
+  public async searchOnObjects(search: string) {
+    return await Prisma.object.findMany({
+      where: {
+        title: { search: search },
+        description: { search: search },
       }
     })
   }
