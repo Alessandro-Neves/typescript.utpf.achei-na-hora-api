@@ -59,6 +59,12 @@ export class InternalServerErrorException extends HttpException {
   }
 }
 
+export class ServiceUnavailableException extends HttpException {
+  constructor(message?: string){
+    super(503, message ? `Service Unavailable: ${message}` : 'Service Unavailable')
+  }
+}
+
 export const HttpExceptionHandler = (res: Response, err: any) => {
   if(err instanceof HttpException)
     return res.status(err.statusCode).json(err)

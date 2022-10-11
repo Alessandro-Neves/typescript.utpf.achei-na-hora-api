@@ -26,11 +26,11 @@ objectController.post('/images/:objectId', uploadManipulator.asMiddleware('image
 objectController.get('/:objectId', async (req: Request, res: Response) => {
   try {
     var response = await objectService.getObjectById(Number(req.params.objectId))
-    res.status(200).json(await objectService.getObjectById(Number(req.params.objectId)))
+    res.status(200).json(response)
   } catch (err) { HttpExceptionHandler(res, err) }
 })
 
-/* get object by user id */
+/* get objects by user id */
 objectController.get('/user/:userId', async (req: Request, res: Response) => {
    try {
       var response = await objectService.findObjectsByUserId(Number(req.params.userId))
@@ -38,10 +38,26 @@ objectController.get('/user/:userId', async (req: Request, res: Response) => {
    } catch (err) { HttpExceptionHandler(res, err) }
 })
 
+/* get objectss by tag id */
+objectController.get('/tag/:tagId', async (req: Request, res: Response) => {
+   try {
+      var response = await objectService.findObjectsByTag(Number(req.params.tagId))
+      res.status(200).json(response)
+   } catch (err) { HttpExceptionHandler(res, err)}
+})
+
 /* delete object by id */
 objectController.delete('/:objectId', async (req: Request, res: Response) => {
    try {
       var response = await objectService.deleteObjectById(Number(req.params.objectId))
+      res.status(200).json(response)
+   } catch (err) { HttpExceptionHandler(res, err)}
+})
+
+/* search on objects (+tags) */
+objectController.get('/search/:search', async (req: Request, res: Response) => {
+   try {
+      var response = await objectService.searchOnObjects(req.params.search)
       res.status(200).json(response)
    } catch (err) { HttpExceptionHandler(res, err)}
 })

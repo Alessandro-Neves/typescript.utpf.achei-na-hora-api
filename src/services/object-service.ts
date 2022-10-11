@@ -1,7 +1,7 @@
 import { objectRepository } from "../database/repositories/object-repository"
 import { BadRequestException, NotFoundException, UnsupportedMediaTypeException } from "../models/exception-http"
-import { isObjectCreateRequestDTO, ObjectCreateRequestDTO, ObjectResponseDTO, objectToObjectResponseDTO } from "../models/object-dtos"
-import { ImageUse, ObjectType } from "@prisma/client"
+import { isObjectCreateRequestDTO, ObjectCreateRequestDTO, ObjectResponseDTO, ObjectResumeResponseDTO, objectToObjectResponseDTO, objectToObjectResumeResponseDTO } from "../models/object-dtos"
+import { ImageUse, ObjectType, Tag } from "@prisma/client"
 import { imageRepository } from "../database/repositories/image-repository"
 import { userRepository } from "../database/repositories/user-repository"
 import { imageService } from "./image-service"
@@ -30,6 +30,7 @@ class ObjectService {
       dto.description,
       dto.location,
       dto.type,
+      dto.tags,
       dto.ownerId,
       dto.discovererId
     )
@@ -73,14 +74,37 @@ class ObjectService {
     var object = await objectRepository.findObject(id)
     if(!object)   throw new NotFoundException('object not found')
 
-    var response = objectToObjectResponseDTO(object)
+    var tags: Tag[] = []
+
+    for (var tag of object.tags){
+      var res = await objectRepository.findTag(tag.tagId)
+      if(res) tags.push(res)
+    }
+
+    var obj = {...object, tags: tags}
+
+    var response = objectToObjectResponseDTO(obj)
     return response
   }
 
   public async findObjectsByUserId(id: number): Promise<ObjectResponseDTO[]> {
-    var objects = await objectRepository.findObjectsByUserId(id)
+    var objects: any = await objectRepository.findObjectsByUserId(id)
 
-    var response = objects.map(objectToObjectResponseDTO)
+
+    var objectsAndTags: any[] = []
+
+    for (var object of objects){
+      var tags: Tag[] = []
+
+      for (var tag of object.tags){
+        var res = await objectRepository.findTag(tag.tagId)
+        if(res) tags.push(res)
+      }
+
+       objectsAndTags.push({...object, tags: tags})
+    }
+
+    var response = objectsAndTags.map(objectToObjectResponseDTO)
     return response
   }
 
@@ -101,6 +125,34 @@ class ObjectService {
 
     return new SimpleResponse(`object '${object.title}' deleted successfully !`)
  }
+
+  public async searchOnObjects(search: string): Promise<ObjectResumeResponseDTO[]> {
+    var objects: any[] = []
+
+    var tagsFinded = await objectRepository.searchOnTags(search)
+
+    if(tagsFinded.length)
+      for(var tag of tagsFinded)
+        objects = [ ...objects, ...(await objectRepository.findObjectsByTag(tag.id)) ]
+
+    objects = [ ...objects, ...(await objectRepository.searchOnObjects(search)) ]
+
+    var response = objects.map(objectToObjectResumeResponseDTO)
+
+    return response
+  }
+
+  public async findObjectsByTag(id: number): Promise<ObjectResumeResponseDTO[]> {
+    var tag = await objectRepository.findTag(id)
+
+    if(!tag)  throw new NotFoundException('tag not found')
+
+    var objects = await objectRepository.findObjectsByTag(tag.id)
+
+    var response = objects.map(objectToObjectResumeResponseDTO)
+
+    return response
+  }
 }
 
 export const objectService = new ObjectService()

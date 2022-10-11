@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -60,6 +61,7 @@ model Object {
 
   @@index([discovererId], map: "discoverer_id")
   @@index([ownerId], map: "owner_id")
+  @@fulltext([title, description])
 }
 
 model Tag {
@@ -68,6 +70,8 @@ model Tag {
   description                       String?         @db.MediumText
 
   objecs                            TagsOnObjects[]
+
+  @@fulltext([title, description])
 }
 
 model TagsOnObjects {
