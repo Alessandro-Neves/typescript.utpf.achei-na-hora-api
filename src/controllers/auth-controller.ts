@@ -11,4 +11,11 @@ authController.post('/login', async (req: Request, res: Response) => {
   } catch (err) { HttpExceptionHandler(res, err) }
 })
 
+authController.post('/me', async (req: Request, res: Response) => {
+  try {
+    await authService.auth(req.body)
+    res.send(200)
+  } catch (err) { HttpExceptionHandler(res, err) }
+})
+
 export default authController

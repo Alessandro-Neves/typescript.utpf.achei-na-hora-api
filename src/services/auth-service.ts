@@ -1,9 +1,14 @@
-import { isLoginRequestDto, LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos";
-import { User } from "@prisma/client";
-import { BadRequestException, ForbiddenException, NotFoundException } from "../models/exception-http";
-import { userRepository } from "../database/repositories/user-repository";
+import { isLoginRequestDto, LoginRequestDTO, LoginResponseDTO } from "../models/login-dtos"
+import { User } from "@prisma/client"
+import { BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException } from "../models/exception-http"
+import { userRepository } from "../database/repositories/user-repository"
+
+import { sign, verify } from 'jsonwebtoken'
 
 class AuthService {
+
+   private secret: string = String(process.env.SECRET)
+   private jwtExpires: number = 86400 //1h
 
    /**
     * @returns LoginResponseDTO if login is successful.
@@ -23,7 +28,25 @@ class AuthService {
 
       if (user.password != dto.password) throw new ForbiddenException('failed authentication')
 
-      return new LoginResponseDTO(user.id, '5f4dcc3b5aa765d61d8327deb882cf99')
+      var token = await sign({
+         id: user.id,
+         email: user.email
+      }, this.secret, {
+         expiresIn: this.jwtExpires
+      })
+
+      return new LoginResponseDTO(user.id, token)
+   }
+
+   public async auth(dto: any): Promise<void> {
+      if(!dto || !dto.token)  throw new BadRequestException('invalid arguments')
+      
+      try {
+         var decode = await verify(dto.token, this.secret)
+         console.log(decode)
+      } catch (e) {
+         throw new UnauthorizedException('invalid token')
+      }
    }
 }
 
