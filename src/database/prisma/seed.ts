@@ -43,7 +43,7 @@ const createDefaultTags = async () => {
 }
 
 async function seed () {
-  await createDefaultUsers()
+  // await createDefaultUsers()
   await createDefaultTags()
 }
 

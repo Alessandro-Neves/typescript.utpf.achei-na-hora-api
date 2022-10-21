@@ -8,7 +8,7 @@ import { sign, verify } from 'jsonwebtoken'
 class AuthService {
 
    private secret: string = String(process.env.SECRET)
-   private jwtExpires: number = 86400 //1h
+   private jwtExpires: number = 30 //1h
 
    /**
     * @returns LoginResponseDTO if login is successful.
@@ -39,14 +39,29 @@ class AuthService {
    }
 
    public async auth(dto: any): Promise<void> {
-      if(!dto || !dto.token)  throw new BadRequestException('invalid arguments')
-      
+
+      if(!dto || !dto.token)
+         throw new BadRequestException('invalid arguments - token access')
+
+      var decode: any = undefined
+
       try {
-         var decode = await verify(dto.token, this.secret)
-         console.log(decode)
+         decode = await verify(dto.token, this.secret) as any
       } catch (e) {
          throw new UnauthorizedException('invalid token')
       }
+
+      if(!decode || !decode.id || !decode.email)
+         throw new BadRequestException('invalid token')
+
+      if(!decode.exp || (decode.exp * 1000) < Date.now())
+         throw new ForbiddenException('expired token')
+
+      var user = await userRepository.findUser(Number(decode.id))
+
+      if(!user)   throw new NotFoundException('user notfound')
+
+      if(user.email != decode.email)   throw new ForbiddenException('failed authentication')
    }
 }
 
