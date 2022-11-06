@@ -1,5 +1,6 @@
 import { ObjectStatus, ObjectType, Image } from "@prisma/client"
 import { env } from 'process'
+import { stringify } from "uuid"
 import { TagResumeDTO } from "./tag-dtos"
 
 export type ObjectCreateRequestDTO = {
@@ -21,9 +22,10 @@ export type ObjectResponseDTO = {
    type: ObjectType
    tags: TagResumeDTO[]
    images: string[]
+   image?: string
    owner: number | null,
    discoverer: number | null,
-   status: ObjectStatus
+   status: ObjectStatus,
 }
 
 export type ObjectResumeResponseDTO = {
@@ -37,7 +39,7 @@ export const isObjectResponseDTO = (obj: any): obj is ObjectResponseDTO =>
 export const isObjectCreateRequestDTO = (obj: any): obj is ObjectCreateRequestDTO =>
    !!(obj.title && obj.description && obj.location && obj.type && obj.tags)
 
-const imageToLink = (image: Image): string => {
+export const imageToLink = (image: Image): string => {
    return `${env.IMAGES_HOST}/images/image/${image.id}`
 }
 
@@ -61,6 +63,7 @@ export const objectToObjectResponseDTO = (obj: any): ObjectResponseDTO => {
       type: obj.type,
       status: obj.status,
       images: images,
+      image: images?.[0] ?? '',
       tags: tags
    }
 }

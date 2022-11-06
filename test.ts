@@ -22,7 +22,7 @@ async function testUser() {
     data: {
       email: 'testê@email.com',
       password: 'teste123',
-      updated_at: new Date()
+      updatedAt: new Date()
     },
   })
   

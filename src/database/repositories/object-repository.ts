@@ -1,4 +1,4 @@
-import { ObjectType, Object, ObjectStatus, prisma } from "@prisma/client";
+import { ObjectType, Object, ObjectStatus, prisma, Tag } from "@prisma/client";
 import { Prisma } from "..";
 
 class ObjectRepository {
@@ -31,12 +31,21 @@ class ObjectRepository {
   }
 
   public async findObject(id: number) {
-    var response = await Prisma.object.findFirst({
+    var object = await Prisma.object.findFirst({
       where: { id: id },
-      include: { images: true, tags: true }
+      include: { images: true, tags: {
+        include: {
+          tag: true
+        }
+      } }
     })
 
-    return response ?? undefined
+    var tags: Tag[] = []
+
+    /* converte relação N:N entre Objetos:TagsOnObjects em um Object com um array de Tags */
+    if(object && object.tags) tags = object.tags.map(tag => tag.tag)
+
+    return object ? { ...object, tags: tags} : undefined
   }
 
   public async findObjectsByUserId(id: number) {
@@ -98,6 +107,25 @@ class ObjectRepository {
         title: { search: search },
         description: { search: search },
       }
+    })
+  }
+
+  public async findAll() {
+    var objects = await Prisma.object.findMany({
+      include: {
+        images: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        }
+      }
+    })
+
+    /* converte relação N:N entre Objetos:TagsOnObjects em um Object com um array de Tags */
+    return objects.map(obj => {
+      var tags = obj.tags.map(tag => tag.tag)
+      return { ...obj, tags: tags}
     })
   }
 }

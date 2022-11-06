@@ -10,9 +10,9 @@ import { authenticator } from '../middleware/auth/authenticator'
 const routes = Router()
 
 routes.use('/auth', authController)
-routes.use('/user', authenticator, userController)
+routes.use('/user', userController)
 routes.use('/object', authenticator, objectController)
 routes.use('/images', imageController)
-routes.use('/tag', authenticator, tagController)
+routes.use('/tag', tagController)
 
 export default routes

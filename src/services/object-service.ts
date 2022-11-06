@@ -11,6 +11,7 @@ import { removeFile } from "../tools/files"
 
 class ObjectService {
 
+  /* criar um novo objeto */
   public async createObject(dto: ObjectCreateRequestDTO): Promise<ObjectResponseDTO> {
 
     if (!isObjectCreateRequestDTO(dto)) throw new BadRequestException('invalid arguments')
@@ -40,6 +41,7 @@ class ObjectService {
     return response
   }
 
+  /* persistir as imagens e acomplar as referências das imagens à um determinado objeto */
   public async addImagesToObject(files: Express.Multer.File[] | undefined, objectId: number) {
 
     if (!files) throw new BadRequestException('no files available for download')
@@ -70,23 +72,16 @@ class ObjectService {
     return persistedFiles
   }
 
+  /* encontrar um determinado  */
   public async getObjectById(id: number): Promise<ObjectResponseDTO> {
     var object = await objectRepository.findObject(id)
     if(!object)   throw new NotFoundException('object not found')
 
-    var tags: Tag[] = []
-
-    for (var tag of object.tags){
-      var res = await objectRepository.findTag(tag.tagId)
-      if(res) tags.push(res)
-    }
-
-    var obj = {...object, tags: tags}
-
-    var response = objectToObjectResponseDTO(obj)
+    var response = objectToObjectResponseDTO(object)
     return response
   }
 
+  /* encontrar os objetos pertencentes a um determinado usuário */
   public async findObjectsByUserId(id: number): Promise<ObjectResponseDTO[]> {
     var objects: any = await objectRepository.findObjectsByUserId(id)
 
@@ -108,6 +103,7 @@ class ObjectService {
     return response
   }
 
+  /* deletar um determinado objeto */
   public async deleteObjectById(id: number) {
     var object = await objectRepository.findObject(id)
 
@@ -126,6 +122,7 @@ class ObjectService {
     return new SimpleResponse(`object '${object.title}' deleted successfully !`)
  }
 
+ /* pesquisar por uma determinada palavra, a busca será realizada no objeto (title, description) e nas tags do objeto (title, description) */
   public async searchOnObjects(search: string): Promise<ObjectResumeResponseDTO[]> {
     var objects: any[] = []
 
@@ -142,6 +139,7 @@ class ObjectService {
     return response
   }
 
+  /* encontrar grupo de objetos que possuem uma determinada tag */
   public async findObjectsByTag(id: number): Promise<ObjectResumeResponseDTO[]> {
     var tag = await objectRepository.findTag(id)
 
@@ -152,6 +150,13 @@ class ObjectService {
     var response = objects.map(objectToObjectResumeResponseDTO)
 
     return response
+  }
+
+  /* buscar todos os objetos no database */
+  public async findAll(): Promise<{ objects: ObjectResponseDTO[], total: number}> {
+    var objects = await objectRepository.findAll()
+    var response = await objects.map(objectToObjectResponseDTO)
+    return { objects: response, total: response.length}
   }
 }
 

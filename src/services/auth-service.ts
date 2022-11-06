@@ -8,14 +8,13 @@ import { sign, verify } from 'jsonwebtoken'
 class AuthService {
 
    private secret: string = String(process.env.SECRET)
-   private jwtExpires: number = 30 //1h
+   private jwtExpires: number = 3600 //1h
 
    /**
-    * @returns LoginResponseDTO if login is successful.
-    * @throws ExceptionHttp as BadRequestException, NotFoundException, ForbiddenException or Error.
-    * @param dto object with the information necessary to perform user authentication and authorization.
+    * @returns LoginResponseDTO quando login é realizado com sucesso.
+    * @throws ExceptionHttp ( BadRequestException, NotFoundException, ForbiddenException or Error ).
+    * @param dto objeto com as informações necessárias para realizar a autenticação e autorização do usuário.
     */
-
    public async login(dto: LoginRequestDTO): Promise<LoginResponseDTO> {
 
       let user: User | undefined
@@ -38,15 +37,20 @@ class AuthService {
       return new LoginResponseDTO(user.id, token)
    }
 
-   public async auth(dto: any): Promise<void> {
+   /**
+    * @returns void quando a autenticação é realizada com sucesso.
+    * @throws ExceptionHttp ( BadRequestException, NotFoundException, UnauthorizedException, ForbiddenException or Error ).
+    * @param token token jwt do usuário.
+    */
+   public async auth(token: string): Promise<void> {
 
-      if(!dto || !dto.token)
+      if(!token)
          throw new BadRequestException('invalid arguments - token access')
 
       var decode: any = undefined
 
       try {
-         decode = await verify(dto.token, this.secret) as any
+         decode = await verify(token, this.secret) as any
       } catch (e) {
          throw new UnauthorizedException('invalid token')
       }

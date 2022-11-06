@@ -38,18 +38,18 @@ class UserService {
    }
 
    /**
-    * Searches for a user by email.
-    * @returns UserResponseDTO on success.
-    * @returns ExceptionHttpResponse as BadRequestException, NotFoundException, ConflictException or Error.
-    * @param email user email to be searched.
+    * Searches for a user by id.
+    * @returns UserResponseDTO em caso de sucesso .
+    * @returns ExceptionHttpResponse ( BadRequestException, NotFoundException, ConflictException ou Error ).
+    * @param id id do usuário
     */
-   public async findUserByEmail(email: string): Promise<UserResponseDTO> {
+   public async findUserById(id: number): Promise<UserResponseDTO> {
       let user: User | undefined
       let person: Person | undefined
 
-      if (!email || !email.length) throw new BadRequestException('invalid arguments')
+      if (!id) throw new BadRequestException('invalid arguments')
 
-      user = await userRepository.findUserByEmail(email)
+      user = await userRepository.findUser(id)
 
       if(!user) throw new NotFoundException('user not found')
 
@@ -72,13 +72,13 @@ class UserService {
     * @returns ExceptionHttpResponse as BadRequestException, NotFoundException, ConflictException, InternalServerErrorException or Error.
     * @param email user email to be deleted.
     */
-   public async deleteUserByEmail(email: string): Promise< SimpleResponse > {
+   public async deleteUserById(id: number): Promise< SimpleResponse > {
       var user: User | undefined
       var person: Person | undefined
 
-      if (!email || !email.length) throw new BadRequestException('invalid arguments')
+      if (!id) throw new BadRequestException('invalid arguments')
 
-      user = await userRepository.findUserByEmail(email)
+      user = await userRepository.findUser(id)
 
       if(!user) throw new NotFoundException('user not found')
 
