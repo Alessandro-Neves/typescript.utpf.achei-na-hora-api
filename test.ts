@@ -11,17 +11,17 @@ async function testUser() {
 
   var exists = !!await prisma.user.findFirst({
     where: {
-      email: "testê@email.com"
+      ra: "1001001"
     }
   })
 
-  exists && await prisma.user.delete({where: {email: "testê@email.com"}}) && ConsoleSuccess("[ limpando ]")
+  exists && await prisma.user.delete({where: {ra: "1001001"}}) && ConsoleSuccess("[ limpando ]")
 
 
   await prisma.user.create({
     data: {
-      email: 'testê@email.com',
-      password: 'teste123',
+      ra: '1001001',
+      password: '1001001',
       updatedAt: new Date()
     },
   })
@@ -30,20 +30,20 @@ async function testUser() {
 
   const user = await prisma.user.findFirst({
     where: {
-      email: "testê@email.com"
+      ra: "1001001"
     }
   })
 
   ConsoleSuccess("[ encontrado ]");
 
   (
-    user?.email == 'testê@email.com' &&
-    user.password == 'teste123'
+    user?.ra == '1001001' &&
+    user.password == '1001001'
   ) ? ConsoleSuccess("[ dados corretos ]") : ConsoleError("[ dados incorretos ]")
 
   await prisma.user.delete({
     where: {
-      email: "testê@email.com"
+      ra: "1001001"
     }
   })
 

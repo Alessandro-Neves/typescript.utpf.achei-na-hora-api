@@ -131,7 +131,7 @@ datasource db {
 
 model User {
   id                                Int             @id @default(autoincrement())
-  email                             String          @unique(map: "email") @db.VarChar(255)
+  ra                                String          @unique(map: "ra") @db.VarChar(255)
   password                          String          @db.VarChar(255)
   createdAt                         DateTime        @default(now()) @db.Timestamp(0) @map("created_at")
   updatedAt                         DateTime        @db.Timestamp(0)  @map("updated_at")
@@ -145,7 +145,7 @@ model User {
 model Person {
   id                                Int             @id @default(autoincrement())
   full_name                         String          @db.VarChar(255)
-  nickname                          String          @db.VarChar(255)
+  email                             String          @unique(map: "email") @db.VarChar(255)
   campus                            String?         @db.VarChar(45)
   createdAt                         DateTime        @default(now()) @db.Timestamp(0) @map("created_at")
   updatedAt                         DateTime        @db.Timestamp(0) @map("updated_at")
@@ -154,8 +154,8 @@ model Person {
   imageId                           Int?            @unique @map("image_id")
 
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Person_ibfk_1")
-  image      Image?    @relation(fields: [imageId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "Person_ibfk_1")
+  image      Image?    @relation(fields: [imageId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "user_id")
 }

@@ -20,19 +20,19 @@ class UserService {
 
       if (!isUserCreateRequestDTO(dto)) throw new BadRequestException('invalid arguments')
 
-      var exists = !!await userRepository.findUserByEmail(dto.email)
+      var exists = !!await userRepository.findUserByRA(dto.ra)
 
       if (exists) throw new ConflictException('user already exists')
 
-      user = await userRepository.createUser(dto.email, dto.password)
+      user = await userRepository.createUser(dto.ra, dto.password)
 
-      person = await personRepository.createPerson(user.id, dto.fullName, dto.nickName, dto.campus, null)
+      person = await personRepository.createPerson(user.id, dto.fullName, dto.email, dto.campus, null)
 
       return new UserResponseDTO(
          user.id,
-         user.email, 
+         user.ra, 
          person.full_name, 
-         person.nickname, 
+         person.email, 
          person.campus ?? '', 
       )
    }
@@ -59,9 +59,9 @@ class UserService {
 
       return new UserResponseDTO(
          user.id,
-         user.email, 
+         user.ra, 
          person.full_name, 
-         person.nickname, 
+         person.email, 
          person.campus ?? '', 
       )
    }
@@ -92,7 +92,7 @@ class UserService {
       if(!userRepository.deleteUser(user.id))
          throw new InternalServerErrorException("delete user")
 
-      return new SimpleResponse(`user with email '${user.email}' deleted successfully !`)
+      return new SimpleResponse(`user with RA '${user.ra}' deleted successfully !`)
    }
 
 }

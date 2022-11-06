@@ -21,7 +21,7 @@ class AuthService {
 
       if (!isLoginRequestDto(dto)) throw new BadRequestException('invalid arguments')
 
-      user = await userRepository.findUserByEmail(dto.email)
+      user = await userRepository.findUserByRA(dto.ra)
 
       if (!user) throw new NotFoundException('user not found')
 
@@ -29,7 +29,7 @@ class AuthService {
 
       var token = await sign({
          id: user.id,
-         email: user.email
+         ra: user.ra
       }, this.secret, {
          expiresIn: this.jwtExpires
       })
@@ -55,7 +55,7 @@ class AuthService {
          throw new UnauthorizedException('invalid token')
       }
 
-      if(!decode || !decode.id || !decode.email)
+      if(!decode || !decode.id || !decode.ra)
          throw new BadRequestException('invalid token')
 
       if(!decode.exp || (decode.exp * 1000) < Date.now())
@@ -65,7 +65,7 @@ class AuthService {
 
       if(!user)   throw new NotFoundException('user notfound')
 
-      if(user.email != decode.email)   throw new ForbiddenException('failed authentication')
+      if(user.ra != decode.ra)   throw new ForbiddenException('failed authentication')
    }
 }
 

@@ -6,12 +6,12 @@ const createDefaultUsers = async () => {
   var usersPersons = [
     {
       user: {
-        email: 'userOne@email.com',
-        password: 'userOnePass',
+        ra: '1001001',
+        password: '1001001',
         updatedAt: new Date()
       },
       person: {
-        nickname: 'userOne',
+        email: 'userOne@email.com',
         full_name: 'user One Full Name',
         updatedAt: new Date(),
         campus: 'Campo Mourão',
@@ -19,12 +19,12 @@ const createDefaultUsers = async () => {
     },
     {
       user: {
-        email: 'userTwo@email.com',
-        password: 'userTwoPass',
+        ra: '1001002',
+        password: '1001002',
         updatedAt: new Date()
       },
       person: {
-        nickname: 'userTwe',
+        email: 'userTwo@email.com',
         full_name: 'user Two Full Name',
         updatedAt: new Date(),
         campus: 'Campo Mourão',

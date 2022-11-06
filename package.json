@@ -24,14 +24,14 @@
   },
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "dev:restart": "npx prisma db push && npx prisma generate && nodemon src/index.ts",
+    "dev:restart": "npx prisma migrate reset --force && npx prisma db push && npx prisma generate && nodemon src/index.ts",
     "start": "node ./dist/src/index.js",
     "restart": "npx prisma db push && npx prisma generate && yarn start",
     "db:seed": "ts-node --transpile-only ./src/database/prisma/seed.ts",
     "linux:kill": "fuser -k 3030/tcp",
     "test": "npx ts-node test.ts",
     "ts-build": "npx prisma generate && tsc --project .",
-    "build": "npx prisma generate && tsc --project . && npx prisma migrate reset --force && npx prisma db push",
+    "build": "npx prisma migrate reset --force && npx prisma db push && npx prisma generate && tsc --project .",
     "reset-db:force": "npx prisma migrate reset --force"
   },
   "devDependencies": {
