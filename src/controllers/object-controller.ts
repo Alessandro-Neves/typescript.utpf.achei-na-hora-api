@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express'
 import { uploadManipulator } from '../middleware/upload/upload-manipulator';
-import { HttpExceptionHandler, ServiceUnavailableException } from '../models/exception-http';
+import { HttpExceptionHandler, InternalServerErrorException, ServiceUnavailableException } from '../models/exception-http';
 import { objectService } from "../services/object-service";
 
 const objectController = Router()
@@ -74,5 +74,16 @@ objectController.get('/search/:search', async (req: Request, res: Response) => {
    } catch (err) { HttpExceptionHandler(res, err)}
 })
 
+/* finish object */
+objectController.post('/finish/:id', async (req: Request, res: Response) => {
+   try {
+      var id = Number(req.params.id)
+
+      if(!id)  throw new InternalServerErrorException('parse id')
+
+      await objectService.finishObject(id);
+      res.sendStatus(200)
+   } catch (err) { HttpExceptionHandler(res, err)}
+})
 
 export default objectController

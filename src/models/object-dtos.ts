@@ -23,9 +23,9 @@ export type ObjectResponseDTO = {
    tags: TagResumeDTO[]
    images: string[]
    image?: string
-   owner: number | null,
-   discoverer: number | null,
-   status: ObjectStatus,
+   owner: number | null
+   discoverer: number | null
+   status: ObjectStatus
 }
 
 export type ObjectResumeResponseDTO = {
@@ -73,4 +73,30 @@ export const objectToObjectResumeResponseDTO = (obj: any): ObjectResumeResponseD
       id: obj.id ?? -1,
       title: obj.title ?? ''
    }
+}
+
+
+
+export enum ObjectStatusV2 {
+   LOST = "LOST",
+   FOUND = "FOUND",
+   FINISHED = "FINISHED",
+}
+
+export type ObjectResponseDTO_V2 = {
+   id: number
+   title: string
+   description: string
+   location: string
+   type: ObjectType
+   tags: TagResumeDTO[]
+   images: string[]
+   image?: string
+   owner: number | null,
+   discoverer: number | null,
+   status: ObjectStatusV2
+}
+
+export const objectReponseDTOtoV2 = (obj: ObjectResponseDTO) => {
+   return { ...obj, status: obj.status === ObjectStatus.FINISHED ? ObjectStatusV2.FINISHED : obj.type} as ObjectResponseDTO_V2
 }

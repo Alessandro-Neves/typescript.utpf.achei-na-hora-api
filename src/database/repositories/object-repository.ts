@@ -48,12 +48,23 @@ class ObjectRepository {
     return object ? { ...object, tags: tags} : undefined
   }
 
+  public async updateObject(object: Object) {
+    return await Prisma.object.update({ where: {id: object.id}, data: {...object, tags: undefined, images: undefined}})
+  }
+
   public async findObjectsByUserId(id: number) {
     return await Prisma.object.findMany({
       where: {
         OR: [ {ownerId: id },{ discovererId: id } ]
       },
-      include: { images: true, tags: true }
+      include: {
+        images: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        }
+      }
     }) ?? []
   }
 
@@ -88,6 +99,14 @@ class ObjectRepository {
             tagId: id
           }
         }
+      },
+      include: {
+        images: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        }
       }
     })
   }
@@ -106,6 +125,14 @@ class ObjectRepository {
       where: {
         title: { search: search },
         description: { search: search },
+      },
+      include: {
+        images: true,
+        tags: {
+          include: {
+            tag: true
+          }
+        }
       }
     })
   }
