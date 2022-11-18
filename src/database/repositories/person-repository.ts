@@ -2,15 +2,15 @@ import { Person } from "@prisma/client";
 import { Prisma } from "..";
 
 class PersonRepository {
-   public async createPerson(userId: number, fullName: string, nickName: string, campus: string, image: any) {
+   public async createPerson(userId: number, fullName: string, email: string, campus: string, image: any) {
       return await Prisma.person.create({
          data: {
-            user_id: userId,
+            userId: userId,
             full_name: fullName,
-            nickname: nickName,
+            email: email,
             campus: campus,
-            image: null,
-            updated_at: new Date(),
+            imageId: undefined,
+            updatedAt: new Date(),
          }
       })
    }
@@ -18,12 +18,12 @@ class PersonRepository {
    public async findPersonByUserId(id: number): Promise<Person | undefined> {
       return await Prisma.person.findFirst({
          where: {
-            user_id: id
+            userId: id
          }
       }) ?? undefined
    }
 
-   public async deletePersonById(id: number): Promise<Boolean> {
+   public async deletePerson(id: number): Promise<Boolean> {
       try {
          await Prisma.person.delete({
             where: {

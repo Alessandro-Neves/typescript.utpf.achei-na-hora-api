@@ -4,25 +4,33 @@ import { personRepository } from './person-repository';
 
 
 class UserRepository {
-   public async createUser(email: string, password: string): Promise<User> {
+   public async createUser(ra: string, password: string): Promise<User> {
       return await Prisma.user.create({
          data: {
-            email,
+            ra,
             password,
-            updated_at: new Date()
+            updatedAt: new Date()
          }
       })
    }
 
-   public async findUserByEmail(email: string): Promise<User | undefined> {
+   public async findUserByRA(ra: string): Promise<User | undefined> {
       return await Prisma.user.findFirst({
          where: {
-            email: email
+            ra: ra
          }
       }) ?? undefined
    }
 
-   public async deleteUserById(id: number): Promise<Boolean> {
+   public async findUser(id: number): Promise <User | undefined> {
+      return await Prisma.user.findFirst({
+         where: {
+            id: id
+         }
+      }) ?? undefined
+   }
+
+   public async deleteUser(id: number): Promise<Boolean> {
       try {
          await Prisma.user.delete({
             where: {

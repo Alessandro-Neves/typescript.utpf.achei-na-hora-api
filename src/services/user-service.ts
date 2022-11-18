@@ -1,110 +1,98 @@
 import { User, Person } from "@prisma/client";
 import { SimpleResponse } from "../models/simple-response";
-import { isUserCreateRequestDTO, UserCreateRequestDTO, UserResponseDto } from '../models/user-dtos';
-import ExceptionHttpResponse from '../models/exception-http';
+import { isUserCreateRequestDTO, UserCreateRequestDTO, UserResponseDTO } from '../models/user-dtos';
+import { BadRequestException, ConflictException, InternalServerErrorException, NotFoundException } from '../models/exception-http';
 import { userRepository } from '../database/repositories/user-repository';
 import { personRepository } from '../database/repositories/person-repository';
 
 class UserService {
 
    /**
-    * Cria um usuario com os atributos fornecidos pelo dto.
-    * @returns SimpleResponse em caso de sucesso.
-    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
-    * @param dto objeto com os atributos necessários para criar um usuário (User + Person)
+    * Creates a user with the attributes provided by dto.
+    * @returns SimpleResponse on success.
+    * @throws ExceptionHttp as BadRequestException, ConflictException ou Error.
+    * @param dto object with the attributes needed to create a user (User + Person).
     */
-   public async createUser(dto: UserCreateRequestDTO): Promise<SimpleResponse | ExceptionHttpResponse> {
+   public async createUser(dto: UserCreateRequestDTO): Promise<UserResponseDTO> {
 
       let user: User | undefined
       let person: Person | undefined
 
-      try {
+      if (!isUserCreateRequestDTO(dto)) throw new BadRequestException('invalid arguments')
 
-         if (!isUserCreateRequestDTO(dto)) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
+      var exists = !!await userRepository.findUserByRA(dto.ra)
 
-         var exists = !!await userRepository.findUserByEmail(dto.email)
+      if (exists) throw new ConflictException('user already exists')
 
-         if (exists) throw new ExceptionHttpResponse(406, 'NOT_ACCEPTABLE: usuário já existe !')
+      user = await userRepository.createUser(dto.ra, dto.password)
 
-         user = await userRepository.createUser(dto.email, dto.password)
+      person = await personRepository.createPerson(user.id, dto.fullName, dto.email, dto.campus, null)
 
-         person = await personRepository.createPerson(user.id, dto.fullName, dto.nickName, dto.campus, null)
-
-      } catch (error) {
-         if (error instanceof ExceptionHttpResponse) return error
-         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: criar usuário')
-      }
-
-      return new SimpleResponse(`Usuário com email '${user.email}' criado com sucesso !`)
-   }
-
-   /**
-    * Busca um usuário pelo email fornecido.
-    * @returns UserResponseDto com os dados do usuário encontrado em caso de sucesso.
-    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
-    * @param email email do usuário  a ser buscado.
-    */
-   public async findUserByEmail(email: string): Promise<UserResponseDto | ExceptionHttpResponse> {
-      let user: User | undefined
-      let person: Person | undefined
-
-      try {
-         if (!email || !email.length) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
-
-         user = await userRepository.findUserByEmail(email)
-
-         if(!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
-
-         person = await personRepository.findPersonByUserId(user.id)
-
-         if(!person) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário[pessoa] não encontrado !')
-
-      } catch (error) {
-         if (error instanceof ExceptionHttpResponse) return error
-         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: buscar usuario')
-      }
-
-      return new UserResponseDto(
-         user.email, 
+      return new UserResponseDTO(
+         user.id,
+         user.ra, 
          person.full_name, 
-         person.nickname, 
+         person.email, 
          person.campus ?? '', 
-         user.created_at, 
-         user.updated_at)
+      )
    }
 
    /**
-    * Deleta o usuário com o email especificado.
-    * @returns SimpleResponse caso o usuário exista e tenha sido deletado com sucesso.
-    * @returns ExceptionHttpResponse personalizado caso qualquer exception aconteça.
-    * @param email email do usuário a ser deletado.
+    * Searches for a user by id.
+    * @returns UserResponseDTO em caso de sucesso .
+    * @returns ExceptionHttpResponse ( BadRequestException, NotFoundException, ConflictException ou Error ).
+    * @param id id do usuário
     */
-   public async deleteUserByEmail(email: string): Promise< SimpleResponse | ExceptionHttpResponse > {
+   public async findUserById(id: number): Promise<UserResponseDTO> {
+      let user: User | undefined
+      let person: Person | undefined
+
+      if (!id) throw new BadRequestException('invalid arguments')
+
+      user = await userRepository.findUser(id)
+
+      if(!user) throw new NotFoundException('user not found')
+
+      person = await personRepository.findPersonByUserId(user.id)
+
+      if(!person) throw new ConflictException("user exists, but user's person doesn't")
+
+      return new UserResponseDTO(
+         user.id,
+         user.ra, 
+         person.full_name, 
+         person.email, 
+         person.campus ?? '', 
+      )
+   }
+
+   /**
+    * Delete user by email.
+    * @returns SimpleResponse on sucess.
+    * @returns ExceptionHttpResponse as BadRequestException, NotFoundException, ConflictException, InternalServerErrorException or Error.
+    * @param email user email to be deleted.
+    */
+   public async deleteUserById(id: number): Promise< SimpleResponse > {
       var user: User | undefined
       var person: Person | undefined
 
-      try {
-         if (!email || !email.length) throw new ExceptionHttpResponse(400, 'BAD_REQUEST: argumentos inválidos !')
+      if (!id) throw new BadRequestException('invalid arguments')
 
-         user = await userRepository.findUserByEmail(email)
+      user = await userRepository.findUser(id)
 
-         if(!user) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário não encontrado !')
+      if(!user) throw new NotFoundException('user not found')
 
-         person = await personRepository.findPersonByUserId(user.id)
+      person = await personRepository.findPersonByUserId(user.id)
 
-         if(!person) throw new ExceptionHttpResponse(404, 'NOT_FOUND: usuário[pessoa] não encontrado !')
+      if(!person) throw new ConflictException("user exists, but user's person doesn't")
 
-         if(!personRepository.deletePersonById(person.id))
-            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar pessoa')
+      if(!personRepository.deletePerson(person.id))
+         throw new InternalServerErrorException("delete user's person")
 
-         if(!userRepository.deleteUserById(user.id))
-            throw new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: deletar usuario')
+      if(!userRepository.deleteUser(user.id))
+         throw new InternalServerErrorException("delete user")
 
-         return new SimpleResponse(`Usuario com email '${email}' deletado com sucesso !`)
-      } catch (error) {
-         if (error instanceof ExceptionHttpResponse) return error
-         return new ExceptionHttpResponse(500, 'INTERNAL_SERVER_ERROR: buscar usuario')
-      }
+      return new SimpleResponse(`user with RA '${user.ra}' deleted successfully !`)
    }
 
 }

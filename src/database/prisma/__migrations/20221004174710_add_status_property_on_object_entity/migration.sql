@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Object` ADD COLUMN `status` ENUM('ACTIVE', 'FINISHED') NOT NULL,
+    MODIFY `type` ENUM('FOUND', 'LOST') NOT NULL;

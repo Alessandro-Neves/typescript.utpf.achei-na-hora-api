@@ -1,16 +1,16 @@
 export type LoginRequestDTO = {
-  email: string,
+  ra: string,
   password: string
 }
 
-export const isLoginRequestDto = (obj: any): obj is LoginRequestDTO => !!(obj.email && obj.password)
+export const isLoginRequestDto = (obj: any): obj is LoginRequestDTO => !!(obj.ra && obj.password)
 
 export class LoginResponseDTO {
-  constructor(message: string, token: string){
-    this.message = message
+  constructor(id: number, token: string){
+    this.id = id
     this.token = token
   }
 
-  message: string
+  id: number
   token: string
 }
